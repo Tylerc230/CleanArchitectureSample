@@ -15,16 +15,6 @@
 		2FC7013D1FC3DD3900368009 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2FC7013B1FC3DD3900368009 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		2F0F89AB1FC3E0D000CBDBDE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2FC701271FC3DD3900368009 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2FC7012E1FC3DD3900368009;
-			remoteInfo = CleanArchitectureSample;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		2F0F89A61FC3E0D000CBDBDE /* CleanArchitectureSampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CleanArchitectureSampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F0F89A81FC3E0D000CBDBDE /* CleanArchitectureSampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanArchitectureSampleTests.swift; sourceTree = "<group>"; };
@@ -110,7 +100,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				2F0F89AC1FC3E0D000CBDBDE /* PBXTargetDependency */,
 			);
 			name = CleanArchitectureSampleTests;
 			productName = CleanArchitectureSampleTests;
@@ -212,14 +201,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		2F0F89AC1FC3E0D000CBDBDE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2FC7012E1FC3DD3900368009 /* CleanArchitectureSample */;
-			targetProxy = 2F0F89AB1FC3E0D000CBDBDE /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		2FC701361FC3DD3900368009 /* Main.storyboard */ = {
