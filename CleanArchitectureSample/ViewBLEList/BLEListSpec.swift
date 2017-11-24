@@ -37,13 +37,14 @@ class BLEListSpec: QuickSpec {
             }
         }
         
-        describe("three ble devices in range one is known") {
+        describe("three ble devices in range, two devices known, one in range device is known") {
             beforeEach {
-                let knownUUID = UUID()
-                let deviceEntry = DeviceEntry(identifier: knownUUID, name: "Fake name")
-                state.knownDeviceEntries = [deviceEntry]
+                let knownInRangeUUID = UUID()
+                let knownDeviceEntry = DeviceEntry(identifier: knownInRangeUUID, name: "Fake name")
+                let knownNotInRangeDeviceEntry = DeviceEntry(identifier: UUID(), name: "Not in range device")
+                state.knownDeviceEntries = [knownNotInRangeDeviceEntry, knownDeviceEntry]
                 
-                let knownDevice = BLEDevice(identifier: knownUUID)
+                let knownDevice = BLEDevice(identifier: knownInRangeUUID)
                 state.append(discoveredBLEDevice: knownDevice)
                 (0..<2).forEach { _ in
                     let unknownDevice = BLEDevice(identifier: UUID())
@@ -51,16 +52,26 @@ class BLEListSpec: QuickSpec {
                 }
             }
             
-            it("should have 2 sections") {
+            it("has 2 sections") {
                 expect(state.numSectionsInList) == 2
             }
             
-            it("should have 1 row in section 0") {
-                expect(state.numRows(inSection: 0)) == 1
+            it("has 2 rows in section 0") {
+                expect(state.numRows(inSection: 0)) == 2
             }
             
-            it("should have 2 rows in section 1") {
+            it("has 2 rows in section 1") {
                 expect(state.numRows(inSection: 1)) == 2
+            }
+            
+            it("has a disabled row in section 1") {
+                let row = state.knownDeviceRow(at: 0)
+                expect(row.enabled) == false
+            }
+            
+            it("has an enabled row in section 1") {
+                let row = state.knownDeviceRow(at: 1)
+                expect(row.enabled) == true
             }
         }
     }
