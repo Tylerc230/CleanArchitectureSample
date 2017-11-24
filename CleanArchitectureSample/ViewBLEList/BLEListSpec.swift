@@ -42,7 +42,7 @@ class BLEListSpec: QuickSpec {
                 let knownInRangeUUID = UUID()
                 let knownDeviceEntry = DeviceEntry(identifier: knownInRangeUUID, name: "Fake name")
                 let knownNotInRangeDeviceEntry = DeviceEntry(identifier: UUID(), name: "Not in range device")
-                state.knownDeviceEntries = [knownNotInRangeDeviceEntry, knownDeviceEntry]
+                state.knownDevices = [knownNotInRangeDeviceEntry, knownDeviceEntry]
                 
                 let knownDevice = BLEDevice(identifier: knownInRangeUUID)
                 state.append(discoveredBLEDevice: knownDevice)
@@ -66,12 +66,12 @@ class BLEListSpec: QuickSpec {
             
             it("has a disabled row in section 1") {
                 let row = state.knownDeviceRow(at: 0)
-                expect(row.enabled) == false
+                expect(row.inRange) == false
             }
             
             it("has an enabled row in section 1") {
                 let row = state.knownDeviceRow(at: 1)
-                expect(row.enabled) == true
+                expect(row.inRange) == true
             }
         }
     }

@@ -1,18 +1,18 @@
 import Foundation
 struct BLEListState {
-    private var bleDevicesInRange: [BLEDevice] = [] {
+    private var inRangeDevices: [BLEDevice] = [] {
         didSet {
             buildTableModel()
         }
     }
-    var knownDeviceEntries: [DeviceEntry] = [] {
+    var knownDevices: [DeviceEntry] = [] {
         didSet {
             buildTableModel()
         }
     }
     private var tableModel = TableModel(sections: [])
     var showNoDevicesCopy: Bool {
-        return bleDevicesInRange.isEmpty
+        return inRangeDevices.isEmpty
     }
     
     var numSectionsInList: Int {
@@ -38,19 +38,19 @@ struct BLEListState {
     }
     
     mutating func append(discoveredBLEDevice device: BLEDevice) {
-        bleDevicesInRange.append(device)
+        inRangeDevices.append(device)
     }
     
     private mutating func buildTableModel() {
         var sections: [TableModel.Section] = []
-        if !knownDeviceEntries.isEmpty {
-            let discoveredDeviceUUIDs = Set(bleDevicesInRange.map { $0.identifier })
-            let section = TableModel.Section.known(knownDeviceEntries.map(self.knownDeviceRow(discoveredDeviceIds: discoveredDeviceUUIDs)))
+        if !knownDevices.isEmpty {
+            let discoveredDeviceUUIDs = Set(inRangeDevices.map { $0.identifier })
+            let section = TableModel.Section.known(knownDevices.map(self.knownDeviceRow(discoveredDeviceIds: discoveredDeviceUUIDs)))
             sections.append(section)
         }
-        if !bleDevicesInRange.isEmpty {
-            let knownDeviceUUIDs = Set(knownDeviceEntries.map { $0.identifier })
-            let unknownDevices = bleDevicesInRange.filter { !knownDeviceUUIDs.contains($0.identifier)}
+        if !inRangeDevices.isEmpty {
+            let knownDeviceUUIDs = Set(knownDevices.map { $0.identifier })
+            let unknownDevices = inRangeDevices.filter { !knownDeviceUUIDs.contains($0.identifier)}
             let section = TableModel.Section.discovered(unknownDevices.map(self.discoveredDeviceRow))
             sections.append(section)
         }
