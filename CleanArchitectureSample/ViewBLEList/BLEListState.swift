@@ -23,18 +23,8 @@ struct BLEListState {
         return tableModel.numRows(inSection: section)
     }
     
-    func knownDeviceRow(at index: Int) -> KnownDeviceRow {
-        guard case let .known(rows) = tableModel.sections[0] else {
-            fatalError()
-        }
-        return rows[index]
-    }
-    
-    func discoveredDeviceRow(at index: Int) -> DiscoveredDeviceRow {
-        guard case let .discovered(rows) = tableModel.sections[1] else {
-            fatalError()
-        }
-        return rows[index]
+    func cellConfig(atRow row: Int, section: Int) -> TableModel.CellConfig {
+        return tableModel.sections[section][row]
     }
     
     mutating func append(discoveredBLEDevice device: BLEDevice) {
@@ -42,30 +32,30 @@ struct BLEListState {
     }
     
     private mutating func buildTableModel() {
-        var sections: [TableModel.Section] = []
+        var sections: [[TableModel.CellConfig]] = []
         if !knownDevices.isEmpty {
             let discoveredDeviceUUIDs = Set(inRangeDevices.map { $0.identifier })
-            let section = TableModel.Section.known(knownDevices.map(self.knownDeviceRow(discoveredDeviceIds: discoveredDeviceUUIDs)))
+            let section = knownDevices.map(self.knownDeviceRow(discoveredDeviceIds: discoveredDeviceUUIDs))
             sections.append(section)
         }
         if !inRangeDevices.isEmpty {
             let knownDeviceUUIDs = Set(knownDevices.map { $0.identifier })
             let unknownDevices = inRangeDevices.filter { !knownDeviceUUIDs.contains($0.identifier)}
-            let section = TableModel.Section.discovered(unknownDevices.map(self.discoveredDeviceRow))
+            let section = unknownDevices.map(self.discoveredDeviceRow)
             sections.append(section)
         }
         tableModel = TableModel(sections: sections)
     }
     
-    private func knownDeviceRow(discoveredDeviceIds: Set<UUID>) -> (DeviceEntry) -> KnownDeviceRow {
+    private func knownDeviceRow(discoveredDeviceIds: Set<UUID>) -> (DeviceEntry) -> TableModel.CellConfig {
         return { device in
             let inRange = discoveredDeviceIds.contains(device.identifier)
-            return KnownDeviceRow(inRange: inRange)
+            return .known(inRange)
         }
     }
     
-    private func discoveredDeviceRow(from device: BLEDevice) -> DiscoveredDeviceRow {
-        return DiscoveredDeviceRow()
+    private func discoveredDeviceRow(from device: BLEDevice) -> TableModel.CellConfig {
+        return .discovered
     }
     
     struct KnownDeviceRow {
@@ -76,18 +66,14 @@ struct BLEListState {
         
     }
     
-    private struct TableModel {
-        enum Section {
-            case known([KnownDeviceRow]), discovered([DiscoveredDeviceRow])
+    struct TableModel {
+        enum CellConfig {
+            case known(Bool), discovered
         }
-        let sections: [Section]
+        let sections: [[CellConfig]]
         func numRows(inSection sectionIndex: Int) -> Int {
-            switch sections[sectionIndex] {
-            case .known(let rows):
-                return rows.count
-            case .discovered(let rows):
-                return rows.count
-            }
+            let section = sections[sectionIndex]
+            return section.count
         }
     }
 }

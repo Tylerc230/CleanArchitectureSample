@@ -64,14 +64,22 @@ class BLEListSpec: QuickSpec {
                 expect(state.numRows(inSection: 1)) == 2
             }
             
-            it("has a disabled row in section 1") {
-                let row = state.knownDeviceRow(at: 0)
-                expect(row.inRange) == false
+            it("has a disabled row in section 0") {
+                let config = state.cellConfig(atRow: 0, section: 0)
+                if case .known(let enabled) = config {
+                    expect(enabled) == false
+                } else {
+                    fail()
+                }
             }
             
-            it("has an enabled row in section 1") {
-                let row = state.knownDeviceRow(at: 1)
-                expect(row.inRange) == true
+            it("has an enabled row in section 0") {
+                let config = state.cellConfig(atRow: 1, section: 0)
+                if case .known(let enabled) = config {
+                    expect(enabled) == true
+                } else {
+                    fail()
+                }
             }
         }
     }
