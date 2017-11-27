@@ -1,10 +1,6 @@
 import Foundation
 struct BLEListState {
-    private var inRangeDevices: [BLEDevice] = [] {
-        didSet {
-            buildTableModel()
-        }
-    }
+    private var inRangeDevices: [BLEDevice] = []
     var knownDevices: [DeviceEntry] = [] {
         didSet {
             buildTableModel()
@@ -27,8 +23,9 @@ struct BLEListState {
         return tableModel.sections[section][row]
     }
     
-    mutating func append(discoveredBLEDevice device: BLEDevice) {
-        inRangeDevices.append(device)
+    mutating func append(discoveredBLEDevices devices: [BLEDevice]) -> TableModel.RowChangeSet {
+        inRangeDevices += devices
+        return buildTableModel()
     }
     
     private mutating func buildTableModel() {
@@ -55,20 +52,24 @@ struct BLEListState {
     }
     
     private func discoveredDeviceRow(from device: BLEDevice) -> TableModel.CellConfig {
+        //todo: move to CellConfig contructor
         return .discovered
-    }
-    
-    struct KnownDeviceRow {
-        let inRange: Bool
-    }
-    
-    struct DiscoveredDeviceRow {
-        
     }
     
     struct TableModel {
         enum CellConfig {
-            case known(Bool), discovered
+            init(device: BLEDevice) {
+                self = .discovered(device.identifier)
+            }
+            init(deviceEntry: DeviceEntry, inRange: Bool) {
+                self = .known(deviceEntry.identifier, inRange)
+            }
+            case known(UUID, Bool), discovered(UUID)
+        }
+        struct RowChangeSet {
+            let rowsAdded: [IndexPath]
+            let rowsDeleted: [IndexPath]
+            let rowsMoved: [(from: IndexPath, to: IndexPath)]
         }
         let sections: [[CellConfig]]
         func numRows(inSection sectionIndex: Int) -> Int {

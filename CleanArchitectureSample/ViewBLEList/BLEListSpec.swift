@@ -15,7 +15,7 @@ class BLEListSpec: QuickSpec {
         describe("one ble devices is in range") {
             beforeEach {
                 let device = BLEDevice(identifier: UUID())
-                state.append(discoveredBLEDevice: device)
+                _ = state.append(discoveredBLEDevices: [device])
             }
             
             it("does not show the copy") {
@@ -32,23 +32,24 @@ class BLEListSpec: QuickSpec {
             
             it("has two rows after another device discovered") {
                 let device = BLEDevice(identifier: UUID())
-                state.append(discoveredBLEDevice: device)
+                _ = state.append(discoveredBLEDevices: [device])
                 expect(state.numRows(inSection: 0)) == 2
             }
         }
         
         describe("three ble devices in range, two devices known, one in range device is known") {
+            let knownNotInRangeUUID = UUID()
             beforeEach {
                 let knownInRangeUUID = UUID()
                 let knownDeviceEntry = DeviceEntry(identifier: knownInRangeUUID, name: "Fake name")
-                let knownNotInRangeDeviceEntry = DeviceEntry(identifier: UUID(), name: "Not in range device")
+                let knownNotInRangeDeviceEntry = DeviceEntry(identifier: knownNotInRangeUUID, name: "Not in range device")
                 state.knownDevices = [knownNotInRangeDeviceEntry, knownDeviceEntry]
                 
                 let knownDevice = BLEDevice(identifier: knownInRangeUUID)
-                state.append(discoveredBLEDevice: knownDevice)
+                _ = state.append(discoveredBLEDevices: [knownDevice])
                 (0..<2).forEach { _ in
                     let unknownDevice = BLEDevice(identifier: UUID())
-                    state.append(discoveredBLEDevice: unknownDevice)
+                   _ = state.append(discoveredBLEDevices: [unknownDevice])
                 }
             }
             
@@ -79,6 +80,14 @@ class BLEListSpec: QuickSpec {
                     expect(enabled) == true
                 } else {
                     fail()
+                }
+            }
+            
+            describe("the previously known not in range device comes in range") {
+                it("generates a table view change request updating the newly in range cell") {
+                    let newlyInRangeBLEDevice = BLEDevice(identifier: knownNotInRangeUUID)
+                    let tableChangeSet = state.append(discoveredBLEDevices: [newlyInRangeBLEDevice])
+                    expect(tableChangeSet.rowsUpdated).toNot(beEmpty())
                 }
             }
         }
