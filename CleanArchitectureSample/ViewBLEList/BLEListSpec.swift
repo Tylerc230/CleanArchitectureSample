@@ -82,14 +82,21 @@ class BLEListSpec: QuickSpec {
                     fail()
                 }
             }
-            
-            describe("the previously known not in range device comes in range") {
-                it("generates a table view change request updating the newly in range cell") {
-                    let newlyInRangeBLEDevice = BLEDevice(identifier: knownNotInRangeUUID)
-                    let tableChangeSet = state.append(discoveredBLEDevices: [newlyInRangeBLEDevice])
-                    expect(tableChangeSet.rowsUpdated).toNot(beEmpty())
+            describe("another unknown BLEDevice comes into range") {
+                it("adds another cell to the bottom") {
+                    let newDevice = BLEDevice(identifier: UUID())
+                    let changeSet = state.append(discoveredBLEDevices: [newDevice])
+                    expect(changeSet.addedRows).to(haveCount(1))
                 }
             }
+            
+//            describe("the previously known not in range device comes in range") {
+//                it("generates a table view change request updating the newly in range cell") {
+//                    let newlyInRangeBLEDevice = BLEDevice(identifier: knownNotInRangeUUID)
+//                    let tableChangeSet = state.append(discoveredBLEDevices: [newlyInRangeBLEDevice])
+//                    expect(tableChangeSet.updatedRows).toNot(beEmpty())
+//                }
+//            }
         }
     }
 }

@@ -1,9 +1,10 @@
 import Foundation
 struct BLEListState {
     private var inRangeDevices: [BLEDevice] = []
+    private var previousDevices: Set<UUID> = []
     var knownDevices: [DeviceEntry] = [] {
         didSet {
-            buildTableModel()
+            _ = buildTableModel()
         }
     }
     private var tableModel = TableModel(sections: [])
@@ -28,20 +29,44 @@ struct BLEListState {
         return buildTableModel()
     }
     
-    private mutating func buildTableModel() {
+    private mutating func buildTableModel() -> TableModel.RowChangeSet {
         var sections: [[TableModel.CellConfig]] = []
         if !knownDevices.isEmpty {
             let discoveredDeviceUUIDs = Set(inRangeDevices.map { $0.identifier })
             let section = knownDevices.map(self.knownDeviceRow(discoveredDeviceIds: discoveredDeviceUUIDs))
             sections.append(section)
         }
+        
+        let knownDeviceUUIDs = Set(knownDevices.map { $0.identifier })
+        let unknownDevices = inRangeDevices.filter { !knownDeviceUUIDs.contains($0.identifier)}
         if !inRangeDevices.isEmpty {
-            let knownDeviceUUIDs = Set(knownDevices.map { $0.identifier })
-            let unknownDevices = inRangeDevices.filter { !knownDeviceUUIDs.contains($0.identifier)}
             let section = unknownDevices.map(self.discoveredDeviceRow)
             sections.append(section)
         }
+        let changeSet = createChangeSet(section0: knownDevices, section1: unknownDevices)
+        previousDevices = Set(knownDevices.map { $0.identifier} + inRangeDevices.map{ $0.identifier })
         tableModel = TableModel(sections: sections)
+        return changeSet
+    }
+    
+    func createChangeSet(section0: [DeviceEntry], section1: [BLEDevice]) -> TableModel.RowChangeSet {
+        let newRowsInSection0: [IndexPath] = section0
+            .map { $0.identifier }
+            .enumerated()
+            .filter { (_, identifier) in !self.previousDevices.contains(identifier) }
+            .map { (args) in
+                let (row, _) = args
+                return IndexPath(indexes: [0, row])
+        }
+        let newRowsInSection1: [IndexPath] = section1
+            .map { $0.identifier }
+            .enumerated()
+            .filter { (_, identifier) in !self.previousDevices.contains(identifier) }
+            .map { arg in
+                let (row, _) = arg
+                return IndexPath(indexes: [1, row])
+        }
+        return TableModel.RowChangeSet(addedRows: newRowsInSection0 + newRowsInSection1)
     }
     
     private func knownDeviceRow(discoveredDeviceIds: Set<UUID>) -> (DeviceEntry) -> TableModel.CellConfig {
@@ -59,17 +84,15 @@ struct BLEListState {
     struct TableModel {
         enum CellConfig {
             init(device: BLEDevice) {
-                self = .discovered(device.identifier)
+                self = .discovered
             }
             init(deviceEntry: DeviceEntry, inRange: Bool) {
-                self = .known(deviceEntry.identifier, inRange)
+                self = .known(inRange)
             }
-            case known(UUID, Bool), discovered(UUID)
+            case known(Bool), discovered
         }
         struct RowChangeSet {
-            let rowsAdded: [IndexPath]
-            let rowsDeleted: [IndexPath]
-            let rowsMoved: [(from: IndexPath, to: IndexPath)]
+            let addedRows: [IndexPath]
         }
         let sections: [[CellConfig]]
         func numRows(inSection sectionIndex: Int) -> Int {
