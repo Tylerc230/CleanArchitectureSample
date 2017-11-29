@@ -19,6 +19,8 @@
 		2FA920731FC53A18007312B7 /* DeviceEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920721FC53A18007312B7 /* DeviceEntry.swift */; };
 		2FA920741FC53A18007312B7 /* DeviceEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920721FC53A18007312B7 /* DeviceEntry.swift */; };
 		2FA920751FC53A18007312B7 /* DeviceEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920721FC53A18007312B7 /* DeviceEntry.swift */; };
+		2FC081BD1FCE7BA30071ED9C /* iOSTestReplacements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */; };
+		2FC081BE1FCE7BAA0071ED9C /* iOSTestReplacements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */; };
 		2FC701331FC3DD3900368009 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC701321FC3DD3900368009 /* AppDelegate.swift */; };
 		2FC701351FC3DD3900368009 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC701341FC3DD3900368009 /* ViewController.swift */; };
 		2FC701381FC3DD3900368009 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2FC701361FC3DD3900368009 /* Main.storyboard */; };
@@ -52,6 +54,7 @@
 		2FA9206B1FC53022007312B7 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		2FA9206E1FC5373C007312B7 /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		2FA920721FC53A18007312B7 /* DeviceEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEntry.swift; sourceTree = "<group>"; };
+		2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSTestReplacements.swift; sourceTree = "<group>"; };
 		2FC7012F1FC3DD3900368009 /* CleanArchitectureSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CleanArchitectureSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FC701321FC3DD3900368009 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2FC701341FC3DD3900368009 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -122,6 +125,7 @@
 			children = (
 				2FA9205F1FC3EFC1007312B7 /* Info.plist */,
 				2FA9206B1FC53022007312B7 /* main.swift */,
+				2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */,
 			);
 			path = CleanArchitectureCLITests;
 			sourceTree = "<group>";
@@ -475,6 +479,7 @@
 				2FA920701FC5373C007312B7 /* BLEDevice.swift in Sources */,
 				2FA920741FC53A18007312B7 /* DeviceEntry.swift in Sources */,
 				2FA920691FC52D86007312B7 /* BLEListState.swift in Sources */,
+				2FC081BD1FCE7BA30071ED9C /* iOSTestReplacements.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,6 +491,7 @@
 				2FA920711FC5373C007312B7 /* BLEDevice.swift in Sources */,
 				2FA920751FC53A18007312B7 /* DeviceEntry.swift in Sources */,
 				2FA9206A1FC52D86007312B7 /* BLEListState.swift in Sources */,
+				2FC081BE1FCE7BAA0071ED9C /* iOSTestReplacements.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
