@@ -55,6 +55,7 @@
 		2FA9206E1FC5373C007312B7 /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		2FA920721FC53A18007312B7 /* DeviceEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEntry.swift; sourceTree = "<group>"; };
 		2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSTestReplacements.swift; sourceTree = "<group>"; };
+		2FC081BF1FD1150B0071ED9C /* BLEListDemo.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = BLEListDemo.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		2FC7012F1FC3DD3900368009 /* CleanArchitectureSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CleanArchitectureSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FC701321FC3DD3900368009 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2FC701341FC3DD3900368009 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -133,6 +134,7 @@
 		2FA920631FC3FF59007312B7 /* ViewBLEList */ = {
 			isa = PBXGroup;
 			children = (
+				2FC081BF1FD1150B0071ED9C /* BLEListDemo.playground */,
 				2FA920641FC3FFB2007312B7 /* BLEListSpec.swift */,
 				2FA920671FC52D86007312B7 /* BLEListState.swift */,
 			);
