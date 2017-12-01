@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2FA5E7061FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA5E7071FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
-		2FA920651FC3FFB2007312B7 /* BLEListSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920641FC3FFB2007312B7 /* BLEListSpec.swift */; };
 		2FA920661FC3FFB2007312B7 /* BLEListSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920641FC3FFB2007312B7 /* BLEListSpec.swift */; };
 		2FA920681FC52D86007312B7 /* BLEListState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920671FC52D86007312B7 /* BLEListState.swift */; };
 		2FA920691FC52D86007312B7 /* BLEListState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920671FC52D86007312B7 /* BLEListState.swift */; };
@@ -37,7 +36,6 @@
 		2FFEE95D1FD11C38008B40B4 /* BLEList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2FFEE95C1FD11C38008B40B4 /* BLEList.storyboard */; };
 		2FFEE95E1FD11C38008B40B4 /* BLEList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2FFEE95C1FD11C38008B40B4 /* BLEList.storyboard */; };
 		749A87F6CFAB0BCD211CA93B /* Pods_CleanArchitectureCLITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 411AED40A4EF6E4D026AC8A8 /* Pods_CleanArchitectureCLITests.framework */; };
-		A50CC4CCBC943F485823606F /* Pods_CleanArchitectureSampleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B01EBD296019AC6FBF09B1E7 /* Pods_CleanArchitectureSampleTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,7 +52,6 @@
 
 /* Begin PBXFileReference section */
 		2585733C5CAC1080D09CA59E /* Pods-CleanArchitectureSampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CleanArchitectureSampleTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CleanArchitectureSampleTests/Pods-CleanArchitectureSampleTests.release.xcconfig"; sourceTree = "<group>"; };
-		2F0F89A61FC3E0D000CBDBDE /* CleanArchitectureSampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CleanArchitectureSampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F0F89AA1FC3E0D000CBDBDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListSceneCoordinator.swift; sourceTree = "<group>"; };
 		2FA920501FC3EFA9007312B7 /* CleanArchitectureCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CleanArchitectureCLI; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,14 +84,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2F0F89A31FC3E0D000CBDBDE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A50CC4CCBC943F485823606F /* Pods_CleanArchitectureSampleTests.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2FA9204D1FC3EFA9007312B7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -202,7 +191,6 @@
 			isa = PBXGroup;
 			children = (
 				2FC7012F1FC3DD3900368009 /* CleanArchitectureSample.app */,
-				2F0F89A61FC3E0D000CBDBDE /* CleanArchitectureSampleTests.xctest */,
 				2FA920501FC3EFA9007312B7 /* CleanArchitectureCLI */,
 				2FA9205B1FC3EFC1007312B7 /* CleanArchitectureCLITests.xctest */,
 				2FC081C51FD11A0A0071ED9C /* UIPlayground.framework */,
@@ -250,26 +238,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2F0F89A51FC3E0D000CBDBDE /* CleanArchitectureSampleTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2F0F89AF1FC3E0D000CBDBDE /* Build configuration list for PBXNativeTarget "CleanArchitectureSampleTests" */;
-			buildPhases = (
-				64E5384F1DF6587CE4C228F8 /* [CP] Check Pods Manifest.lock */,
-				2F0F89A21FC3E0D000CBDBDE /* Sources */,
-				2F0F89A31FC3E0D000CBDBDE /* Frameworks */,
-				2F0F89A41FC3E0D000CBDBDE /* Resources */,
-				017F1AB3321509AD1B8DEF8B /* [CP] Embed Pods Frameworks */,
-				92E68D0131000967274E3A77 /* [CP] Copy Pods Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CleanArchitectureSampleTests;
-			productName = CleanArchitectureSampleTests;
-			productReference = 2F0F89A61FC3E0D000CBDBDE /* CleanArchitectureSampleTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		2FA9204F1FC3EFA9007312B7 /* CleanArchitectureCLI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2FA920561FC3EFA9007312B7 /* Build configuration list for PBXNativeTarget "CleanArchitectureCLI" */;
@@ -352,11 +320,6 @@
 				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = "Tyler Casselman";
 				TargetAttributes = {
-					2F0F89A51FC3E0D000CBDBDE = {
-						CreatedOnToolsVersion = 9.1;
-						LastSwiftMigration = 0910;
-						ProvisioningStyle = Automatic;
-					};
 					2FA9204F1FC3EFA9007312B7 = {
 						CreatedOnToolsVersion = 9.1;
 						LastSwiftMigration = 0910;
@@ -391,7 +354,6 @@
 			projectRoot = "";
 			targets = (
 				2FC7012E1FC3DD3900368009 /* CleanArchitectureSample */,
-				2F0F89A51FC3E0D000CBDBDE /* CleanArchitectureSampleTests */,
 				2FA9204F1FC3EFA9007312B7 /* CleanArchitectureCLI */,
 				2FA9205A1FC3EFC1007312B7 /* CleanArchitectureCLITests */,
 				2FC081C41FD11A0A0071ED9C /* UIPlayground */,
@@ -400,13 +362,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2F0F89A41FC3E0D000CBDBDE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2FA920591FC3EFC1007312B7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -436,26 +391,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		017F1AB3321509AD1B8DEF8B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CleanArchitectureSampleTests/Pods-CleanArchitectureSampleTests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Nimble-iOS/Nimble.framework",
-				"${BUILT_PRODUCTS_DIR}/Quick-iOS/Quick.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Nimble.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Quick.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CleanArchitectureSampleTests/Pods-CleanArchitectureSampleTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		5F08C70D6EDDCFE31ABF5003 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -476,24 +411,6 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CleanArchitectureCLITests/Pods-CleanArchitectureCLITests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		64E5384F1DF6587CE4C228F8 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-CleanArchitectureSampleTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		8A30062BD355398E8D7E7262 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -507,21 +424,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CleanArchitectureCLITests/Pods-CleanArchitectureCLITests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		92E68D0131000967274E3A77 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CleanArchitectureSampleTests/Pods-CleanArchitectureSampleTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		AB98D068886C11D0178F60E4 /* [CP] Check Pods Manifest.lock */ = {
@@ -545,14 +447,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		2F0F89A21FC3E0D000CBDBDE /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2FA920651FC3FFB2007312B7 /* BLEListSpec.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2FA9204C1FC3EFA9007312B7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -625,37 +519,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		2F0F89AD1FC3E0D000CBDBDE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = E9C4EA757943D73A9B777452 /* Pods-CleanArchitectureSampleTests.debug.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = CleanArchitectureSampleTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.13bit.CleanArchitectureSampleTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		2F0F89AE1FC3E0D000CBDBDE /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2585733C5CAC1080D09CA59E /* Pods-CleanArchitectureSampleTests.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = CleanArchitectureSampleTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = io.13bit.CleanArchitectureSampleTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		2FA920541FC3EFA9007312B7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -912,15 +775,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2F0F89AF1FC3E0D000CBDBDE /* Build configuration list for PBXNativeTarget "CleanArchitectureSampleTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2F0F89AD1FC3E0D000CBDBDE /* Debug */,
-				2F0F89AE1FC3E0D000CBDBDE /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		2FA920561FC3EFA9007312B7 /* Build configuration list for PBXNativeTarget "CleanArchitectureCLI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
