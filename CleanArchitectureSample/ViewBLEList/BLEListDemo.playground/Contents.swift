@@ -1,5 +1,12 @@
-//: Playground - noun: a place where people can play
+import PlaygroundSupport
+@testable import UIPlayground
+struct PlaygroundBLEDeviceManager: BLEDeviceManager {}
+struct MockDeviceRepository: BLEDeviceRepository {}
+let bleListView = BLEListViewController.instantiateFromStoryboard()
+let bleDeviceManager = PlaygroundBLEDeviceManager()
+let mockDeviceRepository = MockDeviceRepository()
+let bleListSceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: bleDeviceManager, deviceRepository: mockDeviceRepository)
 
-import UIKit
 
-var str = "Hello, playground"
+PlaygroundPage.current.needsIndefiniteExecution = true
+PlaygroundPage.current.liveView = bleListView.view
