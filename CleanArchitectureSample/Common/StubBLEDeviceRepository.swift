@@ -1,5 +1,5 @@
 //
-//  MockBLEDeviceRepository.swift
+//  StubBLEDeviceRepository.swift
 //  CleanArchitectureSample
 //
 //  Created by Tyler Casselman on 12/3/17.

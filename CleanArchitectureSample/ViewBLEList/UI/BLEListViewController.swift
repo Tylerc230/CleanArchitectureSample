@@ -34,11 +34,11 @@ class BLEListViewController: UIViewController {
 
 extension BLEListViewController: BLEListUI {
     func updateTable(animateChangeSet changeSet: TableChangeSet?) {
-        if let changeSet = changeSet {
-            animateTableUpdate(with: changeSet)
-        } else {
+        guard let changeSet = changeSet else {
             tableView.reloadData()
+            return
         }
+        animateTableUpdate(with: changeSet)
     }
 }
 

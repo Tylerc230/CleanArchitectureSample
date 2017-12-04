@@ -2,8 +2,8 @@ import PlaygroundSupport
 @testable import UIPlayground
 
 let bleListView = BLEListViewController.instantiateFromStoryboard()
-let bleDeviceManager = MockBLEDeviceManager()
-let deviceRepository = MockDeviceRepository()
+let bleDeviceManager = StubBLEDeviceManager()
+let deviceRepository = StubDeviceRepository()
 let bleListSceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: bleDeviceManager, deviceRepository: deviceRepository)
 bleListView.sceneCoordinator = bleListSceneCoordinator
 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {

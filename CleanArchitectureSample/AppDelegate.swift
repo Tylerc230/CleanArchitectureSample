@@ -14,8 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         let bleListView = BLEListViewController.instantiateFromStoryboard()
-        let deviceManager = MockBLEDeviceManager()
-        let deviceRepo = MockDeviceRepository()
+        let deviceManager = StubBLEDeviceManager()
+        let deviceRepo = StubDeviceRepository()
         let sceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: deviceManager, deviceRepository: deviceRepo)
         bleListView.sceneCoordinator = sceneCoordinator
         window?.rootViewController = bleListView
