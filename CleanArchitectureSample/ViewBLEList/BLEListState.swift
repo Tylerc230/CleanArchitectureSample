@@ -99,12 +99,12 @@ struct BLEListState {
         
         enum CellConfig {
             init(device: BLEDevice) {
-                self = .discovered
+                self = .discovered(device.type)
             }
             init(deviceEntry: DeviceEntry, inRange: Bool) {
-                self = .known(inRange)
+                self = .known(deviceEntry.name, deviceEntry.type, inRange)
             }
-            case known(Bool), discovered
+            case known(String, String, Bool), discovered(String)
         }
         
         struct RowChangeSet {

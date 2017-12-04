@@ -55,8 +55,19 @@ extension BLEListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.backgroundColor = .blue
-        return cell
+        guard let config = sceneCoordinator?.tableModel.cellConfig(at: indexPath) else {
+            return UITableViewCell()
+        }
+        switch config {
+        case .known(let name, let type, let inRange):
+            let cell = tableView.dequeueReusableCell(withIdentifier: KnownDeviceCell.identifier) as! KnownDeviceCell
+            cell.set(name: name, type: type)
+            cell.isInRange = inRange
+            return cell
+        case .discovered(let type):
+            let cell = tableView.dequeueReusableCell(withIdentifier: InRangeCell.identifier) as! InRangeCell
+            cell.deviceType = type
+            return cell
+        }
     }
 }

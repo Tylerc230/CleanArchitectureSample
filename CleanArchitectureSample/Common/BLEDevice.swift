@@ -1,6 +1,7 @@
 import Foundation
 struct BLEDevice {
     let identifier: UUID
+    let type: String
 }
 
 extension BLEDevice: Equatable {
