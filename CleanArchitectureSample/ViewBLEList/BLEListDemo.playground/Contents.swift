@@ -1,12 +1,19 @@
 import PlaygroundSupport
 @testable import UIPlayground
-struct PlaygroundBLEDeviceManager: BLEDeviceManager {}
-struct MockDeviceRepository: BLEDeviceRepository {}
+
+struct MockBLEDeviceManager: BLEDeviceManager {}
+struct MockDeviceRepository: BLEDeviceRepository {
+    func fetchAllDevices() -> [DeviceEntry] {
+        return (0..<3).map { DeviceEntry(identifier: UUID(), name: "Device \($0 + 1)") }
+    }
+}
 let bleListView = BLEListViewController.instantiateFromStoryboard()
-let bleDeviceManager = PlaygroundBLEDeviceManager()
-let mockDeviceRepository = MockDeviceRepository()
-let bleListSceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: bleDeviceManager, deviceRepository: mockDeviceRepository)
+let bleDeviceManager = MockBLEDeviceManager()
+let deviceRepository = MockDeviceRepository()
+let bleListSceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: bleDeviceManager, deviceRepository: deviceRepository)
+bleListView.sceneCoordinator = bleListSceneCoordinator
 
 
 PlaygroundPage.current.needsIndefiniteExecution = true
-PlaygroundPage.current.liveView = bleListView.view
+PlaygroundPage.current.liveView = bleListView
+

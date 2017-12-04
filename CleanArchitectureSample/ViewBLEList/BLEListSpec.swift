@@ -23,17 +23,17 @@ class BLEListSpec: QuickSpec {
             }
             
             it("has 1 section") {
-                expect(state.numSectionsInList) == 1
+                expect(state.tableModel.numSections) == 1
             }
             
             it("has one row in the section") {
-                expect(state.numRows(inSection: 0)) == 1
+                expect(state.tableModel.numRows(inSection: 0)) == 1
             }
             
             it("has two rows after another device discovered") {
                 let device = BLEDevice(identifier: UUID())
                 _ = state.append(discoveredBLEDevices: [device])
-                expect(state.numRows(inSection: 0)) == 2
+                expect(state.tableModel.numRows(inSection: 0)) == 2
             }
         }
         
@@ -54,19 +54,20 @@ class BLEListSpec: QuickSpec {
             }
             
             it("has 2 sections") {
-                expect(state.numSectionsInList) == 2
+                expect(state.tableModel.numSections) == 2
             }
             
             it("has 2 rows in section 0") {
-                expect(state.numRows(inSection: 0)) == 2
+                expect(state.tableModel.numRows(inSection: 0)) == 2
             }
             
             it("has 2 rows in section 1") {
-                expect(state.numRows(inSection: 1)) == 2
+                expect(state.tableModel.numRows(inSection: 1)) == 2
             }
             
             it("has a disabled row in section 0") {
-                let config = state.cellConfig(atRow: 0, section: 0)
+                let row = IndexPath(row: 0, section: 0)
+                let config = state.tableModel.cellConfig(at: row)
                 if case .known(let enabled) = config {
                     expect(enabled) == false
                 } else {
@@ -75,7 +76,8 @@ class BLEListSpec: QuickSpec {
             }
             
             it("has an enabled row in section 0") {
-                let config = state.cellConfig(atRow: 1, section: 0)
+                let row = IndexPath(row: 1, section: 0)
+                let config = state.tableModel.cellConfig(at: row)
                 if case .known(let enabled) = config {
                     expect(enabled) == true
                 } else {

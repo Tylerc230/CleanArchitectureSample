@@ -4,21 +4,9 @@ struct BLEListState {
     private var inRangeDevices: [BLEDevice] = []
     private var knownDevices: [DeviceEntry] = []
     private var deviceTablePositions: DeviceIndexPathMap = [:]
-    private var tableModel = TableModel(sections: [])
+    private (set) var tableModel = TableModel(sections: [])
     var showNoDevicesCopy: Bool {
         return inRangeDevices.isEmpty
-    }
-    
-    var numSectionsInList: Int {
-        return tableModel.sections.count
-    }
-
-    func numRows(inSection section: Int) -> Int {
-        return tableModel.numRows(inSection: section)
-    }
-    
-    func cellConfig(atRow row: Int, section: Int) -> TableModel.CellConfig {
-        return tableModel.sections[section][row]
     }
     
     mutating func append(discoveredBLEDevices devices: [BLEDevice]) -> TableModel.RowChangeSet {
@@ -93,6 +81,22 @@ struct BLEListState {
     }
     
     struct TableModel {
+        init(sections: [[CellConfig]]) {
+            self.sections = sections
+        }
+        
+        var numSections: Int {
+            return sections.count
+        }
+        
+        func numRows(inSection sectionIndex: Int) -> Int {
+            return sections[sectionIndex].count
+        }
+        
+        func cellConfig(at indexPath: IndexPath) -> CellConfig {
+            return sections[indexPath.section][indexPath.row]
+        }
+        
         enum CellConfig {
             init(device: BLEDevice) {
                 self = .discovered
@@ -102,14 +106,12 @@ struct BLEListState {
             }
             case known(Bool), discovered
         }
+        
         struct RowChangeSet {
             let addedRows: [IndexPath]
             let deletedRows: [IndexPath]
         }
-        let sections: [[CellConfig]]
-        func numRows(inSection sectionIndex: Int) -> Int {
-            let section = sections[sectionIndex]
-            return section.count
-        }
+        
+        private let sections: [[CellConfig]]
     }
 }

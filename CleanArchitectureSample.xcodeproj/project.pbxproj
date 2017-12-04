@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F2B88861FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */; };
+		2F2B88891FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */; };
 		2FA5E7061FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA5E7071FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA920661FC3FFB2007312B7 /* BLEListSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920641FC3FFB2007312B7 /* BLEListSpec.swift */; };
@@ -53,6 +55,8 @@
 /* Begin PBXFileReference section */
 		2585733C5CAC1080D09CA59E /* Pods-CleanArchitectureSampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CleanArchitectureSampleTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CleanArchitectureSampleTests/Pods-CleanArchitectureSampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		2F0F89AA1FC3E0D000CBDBDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceManagerImpl.swift; sourceTree = "<group>"; };
+		2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceRepositoryImpl.swift; sourceTree = "<group>"; };
 		2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListSceneCoordinator.swift; sourceTree = "<group>"; };
 		2FA920501FC3EFA9007312B7 /* CleanArchitectureCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CleanArchitectureCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FA9205B1FC3EFC1007312B7 /* CleanArchitectureCLITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CleanArchitectureCLITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -161,6 +165,8 @@
 			children = (
 				2FA9206E1FC5373C007312B7 /* BLEDevice.swift */,
 				2FA920721FC53A18007312B7 /* DeviceEntry.swift */,
+				2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */,
+				2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -492,6 +498,8 @@
 				2FA9206F1FC5373C007312B7 /* BLEDevice.swift in Sources */,
 				2FC701331FC3DD3900368009 /* AppDelegate.swift in Sources */,
 				2FA920681FC52D86007312B7 /* BLEListState.swift in Sources */,
+				2F2B88891FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift in Sources */,
+				2F2B88861FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift in Sources */,
 				2FFEE95A1FD11AF8008B40B4 /* BLEListViewController.swift in Sources */,
 				2FA920731FC53A18007312B7 /* DeviceEntry.swift in Sources */,
 			);
