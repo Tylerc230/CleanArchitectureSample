@@ -85,22 +85,17 @@ class BLEListSpec: QuickSpec {
                 }
             }
             
-            describe("another unknown BLEDevice comes into range") {
-                it("adds another cell to the bottom") {
-                    let newDevice = bleDevice()
-                    let changeSet = state.append(discoveredBLEDevices: [newDevice])
-                    expect(changeSet.addedRows).to(haveCount(1))
-                }
+            it("adds another cell to the bottom when another unknown BLEDevice comes into range") {
+                let newDevice = bleDevice()
+                let changeSet = state.append(discoveredBLEDevices: [newDevice])
+                expect(changeSet.addedRows).to(haveCount(1))
             }
             
-            describe("the user adds a device entry to an unknown device, making it known") {
-                it("removes a cell from section 1 to adds a cell section 0") {
-                    let newDeviceEntry = deviceEntry(withUUID: unknownInRangeUUID)
-                    let changeSet = state.append(deviceEntries: [newDeviceEntry])
-                    expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
-                    expect(changeSet.deletedRows) == [IndexPath(row:0, section: 1)]
-                    
-                }
+            it("removes a cell from section 1 to adds a cell section 0 when the user adds a device entry to an unknown device, making it known") {
+                let newDeviceEntry = deviceEntry(withUUID: unknownInRangeUUID)
+                let changeSet = state.append(deviceEntries: [newDeviceEntry])
+                expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
+                expect(changeSet.deletedRows) == [IndexPath(row:0, section: 1)]
             }
         }
         
