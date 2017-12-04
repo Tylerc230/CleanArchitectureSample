@@ -14,7 +14,7 @@ class BLEListSpec: QuickSpec {
         }
         describe("one ble devices is in range") {
             beforeEach {
-                let device = BLEDevice(identifier: UUID())
+                let device = BLEDevice(identifier: UUID(), type: "")
                 _ = state.append(discoveredBLEDevices: [device])
             }
             
@@ -31,7 +31,7 @@ class BLEListSpec: QuickSpec {
             }
             
             it("has two rows after another device discovered") {
-                let device = BLEDevice(identifier: UUID())
+                let device = BLEDevice(identifier: UUID(), type: "")
                 _ = state.append(discoveredBLEDevices: [device])
                 expect(state.tableModel.numRows(inSection: 0)) == 2
             }
@@ -43,13 +43,14 @@ class BLEListSpec: QuickSpec {
             beforeEach {
                 //Originally has 2 unknown devices in the bottom section and 2 devices in the top (one is in range and one is not)
                 let knownInRangeUUID = UUID()
-                let knownInRangeDeviceEntry = DeviceEntry(identifier: knownInRangeUUID, name: "Fake name") //row: 0, sec: 0 and will be enabled b/c it is in range
-                let knownNotInRangeDeviceEntry = DeviceEntry(identifier: knownNotInRangeUUID, name: "Not in range device")//row:1, sec:0 disabled
+                //TODO: need to make factory method for these
+                let knownInRangeDeviceEntry = DeviceEntry(identifier: knownInRangeUUID, name: "Fake name", type: "") //row: 0, sec: 0 and will be enabled b/c it is in range
+                let knownNotInRangeDeviceEntry = DeviceEntry(identifier: knownNotInRangeUUID, name: "Not in range device", type: "")//row:1, sec:0 disabled
                 _ = state.append(deviceEntries: [knownNotInRangeDeviceEntry, knownInRangeDeviceEntry])
 
-                let knownDevice = BLEDevice(identifier: knownInRangeUUID)//This one will be in section 0 (bc it is known)
-                let unknownDevice1 = BLEDevice(identifier: unknownInRangeUUID)//This one will be at row: 0, sec: 1
-                let unknownDevice2 = BLEDevice(identifier: UUID())//This one will be at row: 1, sec: 1
+                let knownDevice = BLEDevice(identifier: knownInRangeUUID, type: "")//This one will be in section 0 (bc it is known)
+                let unknownDevice1 = BLEDevice(identifier: unknownInRangeUUID, type: "")//This one will be at row: 0, sec: 1
+                let unknownDevice2 = BLEDevice(identifier: UUID(), type:"")//This one will be at row: 1, sec: 1
                 _ = state.append(discoveredBLEDevices: [knownDevice, unknownDevice1, unknownDevice2])
             }
             
@@ -68,7 +69,7 @@ class BLEListSpec: QuickSpec {
             it("has a disabled row in section 0") {
                 let row = IndexPath(row: 0, section: 0)
                 let config = state.tableModel.cellConfig(at: row)
-                if case .known(let enabled) = config {
+                if case let .known(_, _, enabled) = config {
                     expect(enabled) == false
                 } else {
                     fail()
@@ -78,7 +79,7 @@ class BLEListSpec: QuickSpec {
             it("has an enabled row in section 0") {
                 let row = IndexPath(row: 1, section: 0)
                 let config = state.tableModel.cellConfig(at: row)
-                if case .known(let enabled) = config {
+                if case let .known(_, _, enabled) = config {
                     expect(enabled) == true
                 } else {
                     fail()
@@ -87,7 +88,7 @@ class BLEListSpec: QuickSpec {
             
             describe("another unknown BLEDevice comes into range") {
                 it("adds another cell to the bottom") {
-                    let newDevice = BLEDevice(identifier: UUID())
+                    let newDevice = BLEDevice(identifier: UUID(), type: "")
                     let changeSet = state.append(discoveredBLEDevices: [newDevice])
                     expect(changeSet.addedRows).to(haveCount(1))
                 }
@@ -95,24 +96,25 @@ class BLEListSpec: QuickSpec {
             
             describe("the user adds a device entry to an unknown device, making it known") {
                 it("removes a cell from section 1 to adds a cell section 0") {
-                    let newDeviceEntry = DeviceEntry(identifier: unknownInRangeUUID, name: "New name")
+                    let newDeviceEntry = DeviceEntry(identifier: unknownInRangeUUID, name: "New name", type: "")
                     let changeSet = state.append(deviceEntries: [newDeviceEntry])
                     expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
                     expect(changeSet.deletedRows) == [IndexPath(row:0, section: 1)]
                     
                 }
             }
-            
-            
-            
-
-//            describe("the previously known not in range device comes in range") {
-//                it("generates a table view change request updating the newly in range cell") {
-//                    let newlyInRangeBLEDevice = BLEDevice(identifier: knownNotInRangeUUID)
-//                    let tableChangeSet = state.append(discoveredBLEDevices: [newlyInRangeBLEDevice])
-//                    expect(tableChangeSet.updatedRows).toNot(beEmpty())
-//                }
-//            }
+        }
+        
+        describe("section addition and removal") {
+            context("one known device (one section only)") {
+                beforeEach {
+                    _ = state.append(deviceEntries: [DeviceEntry(identifier: UUID(), name: "", type: "")])
+                }
+                it("adds a section in the changeset when a new device is discovered") {
+                    let changeSet = state.append(discoveredBLEDevices: [BLEDevice(identifier: UUID(), type: "")])
+                    expect(changeSet.addedSections) == [1]
+                }
+            }
         }
     }
 }

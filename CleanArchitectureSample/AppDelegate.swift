@@ -14,11 +14,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         let bleListView = BLEListViewController.instantiateFromStoryboard()
-        let deviceManager = BLEDeviceManagerImpl()
-        let deviceRepo = BLEDeviceRepositoryImpl()
+        let deviceManager = MockBLEDeviceManager()
+        let deviceRepo = MockDeviceRepository()
         let sceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: deviceManager, deviceRepository: deviceRepo)
         bleListView.sceneCoordinator = sceneCoordinator
         window?.rootViewController = bleListView
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            deviceManager.discover(device: BLEDevice(identifier: UUID(), type: "Fake device"))
+        }
+        
+
         return true
     }
 }

@@ -26,6 +26,10 @@
 		2FB7A2721FD5064300C94ECD /* KnownDeviceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2701FD5064300C94ECD /* KnownDeviceCell.swift */; };
 		2FB7A2741FD5069100C94ECD /* InRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2731FD5069100C94ECD /* InRangeCell.swift */; };
 		2FB7A2751FD5069100C94ECD /* InRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2731FD5069100C94ECD /* InRangeCell.swift */; };
+		2FB7A2771FD5123300C94ECD /* MockBLEDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2761FD5123300C94ECD /* MockBLEDeviceManager.swift */; };
+		2FB7A2781FD5123300C94ECD /* MockBLEDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2761FD5123300C94ECD /* MockBLEDeviceManager.swift */; };
+		2FB7A27A1FD5124C00C94ECD /* MockBLEDeviceRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2791FD5124C00C94ECD /* MockBLEDeviceRepository.swift */; };
+		2FB7A27B1FD5124C00C94ECD /* MockBLEDeviceRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7A2791FD5124C00C94ECD /* MockBLEDeviceRepository.swift */; };
 		2FC081BD1FCE7BA30071ED9C /* iOSTestReplacements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */; };
 		2FC081BE1FCE7BAA0071ED9C /* iOSTestReplacements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */; };
 		2FC081C91FD11A0A0071ED9C /* UIPlayground.h in Headers */ = {isa = PBXBuildFile; fileRef = 2FC081C71FD11A0A0071ED9C /* UIPlayground.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -70,9 +74,11 @@
 		2FA9206B1FC53022007312B7 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		2FA9206E1FC5373C007312B7 /* BLEDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
 		2FA920721FC53A18007312B7 /* DeviceEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEntry.swift; sourceTree = "<group>"; };
-		2FB7A26F1FD5061300C94ECD /* BLEListDemo.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = BLEListDemo.playground; sourceTree = "<group>"; };
+		2FB7A26F1FD5061300C94ECD /* BLEListDemo.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = BLEListDemo.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		2FB7A2701FD5064300C94ECD /* KnownDeviceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnownDeviceCell.swift; sourceTree = "<group>"; };
 		2FB7A2731FD5069100C94ECD /* InRangeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InRangeCell.swift; sourceTree = "<group>"; };
+		2FB7A2761FD5123300C94ECD /* MockBLEDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBLEDeviceManager.swift; sourceTree = "<group>"; };
+		2FB7A2791FD5124C00C94ECD /* MockBLEDeviceRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBLEDeviceRepository.swift; sourceTree = "<group>"; };
 		2FC081BB1FCE7AD90071ED9C /* iOSTestReplacements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSTestReplacements.swift; sourceTree = "<group>"; };
 		2FC081C51FD11A0A0071ED9C /* UIPlayground.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UIPlayground.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FC081C71FD11A0A0071ED9C /* UIPlayground.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIPlayground.h; sourceTree = "<group>"; };
@@ -183,6 +189,8 @@
 				2FA920721FC53A18007312B7 /* DeviceEntry.swift */,
 				2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */,
 				2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */,
+				2FB7A2761FD5123300C94ECD /* MockBLEDeviceManager.swift */,
+				2FB7A2791FD5124C00C94ECD /* MockBLEDeviceRepository.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -502,6 +510,8 @@
 				2FC081D01FD11A260071ED9C /* DeviceEntry.swift in Sources */,
 				2FB7A2721FD5064300C94ECD /* KnownDeviceCell.swift in Sources */,
 				2FC081CF1FD11A260071ED9C /* BLEDevice.swift in Sources */,
+				2FB7A2781FD5123300C94ECD /* MockBLEDeviceManager.swift in Sources */,
+				2FB7A27B1FD5124C00C94ECD /* MockBLEDeviceRepository.swift in Sources */,
 				2FA5E7071FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */,
 				2FC081D11FD11A260071ED9C /* BLEListState.swift in Sources */,
 			);
@@ -516,7 +526,9 @@
 				2FA9206F1FC5373C007312B7 /* BLEDevice.swift in Sources */,
 				2FC701331FC3DD3900368009 /* AppDelegate.swift in Sources */,
 				2FB7A2711FD5064300C94ECD /* KnownDeviceCell.swift in Sources */,
+				2FB7A2771FD5123300C94ECD /* MockBLEDeviceManager.swift in Sources */,
 				2FA920681FC52D86007312B7 /* BLEListState.swift in Sources */,
+				2FB7A27A1FD5124C00C94ECD /* MockBLEDeviceRepository.swift in Sources */,
 				2F2B88891FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift in Sources */,
 				2F2B88861FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift in Sources */,
 				2FFEE95A1FD11AF8008B40B4 /* BLEListViewController.swift in Sources */,

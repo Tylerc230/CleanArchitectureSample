@@ -27,6 +27,7 @@ class BLEListViewController: UIViewController {
         tableView.performBatchUpdates({
             tableView.insertRows(at: changeSet.addedRows, with: .fade)
             tableView.deleteRows(at: changeSet.deletedRows, with: .fade)
+            tableView.insertSections(changeSet.addedSections, with: .fade)
         }, completion: nil)
     }
 }

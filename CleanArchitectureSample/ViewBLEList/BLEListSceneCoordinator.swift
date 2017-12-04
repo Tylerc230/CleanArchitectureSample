@@ -8,15 +8,25 @@
 protocol BLEListUI: class {
     func updateTable(animateChangeSet: BLEListState.TableModel.RowChangeSet?)
 }
-protocol BLEDeviceManager {}
+
+protocol BLEDeviceManagerObserver: class {
+    func didDiscover(device: BLEDevice)
+}
+
+protocol BLEDeviceManager: class {
+    weak var observer: BLEDeviceManagerObserver? { get set }
+}
+
 protocol BLEDeviceRepository {
     func fetchAllDevices() -> [DeviceEntry]
 }
+
 class BLEListSceneCoordinator {
     init(ui: BLEListUI, bleDeviceManager: BLEDeviceManager, deviceRepository: BLEDeviceRepository) {
         self.ui = ui
         self.deviceManager = bleDeviceManager
         self.deviceRepository = deviceRepository
+        self.deviceManager.observer = self
         setInitialState()
     }
 
@@ -36,4 +46,11 @@ class BLEListSceneCoordinator {
     private let deviceManager: BLEDeviceManager
     private let deviceRepository: BLEDeviceRepository
     private var state = BLEListState()
+}
+
+extension BLEListSceneCoordinator: BLEDeviceManagerObserver {
+    func didDiscover(device: BLEDevice) {
+        let changeSet = state.append(discoveredBLEDevices: [device])
+        ui?.updateTable(animateChangeSet: changeSet)
+    }
 }

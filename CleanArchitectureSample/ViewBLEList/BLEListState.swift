@@ -57,6 +57,7 @@ struct BLEListState {
     private func createChangeSet(newDeviceTablePositions: DeviceIndexPathMap, oldDeviceTablePositions: DeviceIndexPathMap) -> TableModel.RowChangeSet {
         let currentDevices = Set(newDeviceTablePositions.keys)
         let oldDevices = Set(oldDeviceTablePositions.keys)
+        //TODO: break these out into methods
         let devicesWhichMovedSections = currentDevices
             .filter { identifier in
                 guard
@@ -76,8 +77,11 @@ struct BLEListState {
             .union(devicesWhichMovedSections)
             .flatMap { newDeviceTablePositions[$0] }
         
+        let oldSectionCount = Set(oldDeviceTablePositions.values).map { $0.section }.count
+        let newSectionCount = Set(newDeviceTablePositions.values).map { $0.section }.count
+        let addedSections = newSectionCount > oldSectionCount ? [1] : [0]
         let deletedIndexPaths = devicesWhichMovedSections.flatMap { oldDeviceTablePositions[$0] }
-        return TableModel.RowChangeSet(addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths)
+        return TableModel.RowChangeSet(addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths, addedSections: IndexSet(addedSections))
     }
     
     struct TableModel {
@@ -110,6 +114,7 @@ struct BLEListState {
         struct RowChangeSet {
             let addedRows: [IndexPath]
             let deletedRows: [IndexPath]
+            let addedSections: IndexSet
         }
         
         private let sections: [[CellConfig]]
