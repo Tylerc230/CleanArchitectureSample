@@ -55,33 +55,46 @@ struct BLEListState {
     }
     
     private func createChangeSet(newDeviceTablePositions: DeviceIndexPathMap, oldDeviceTablePositions: DeviceIndexPathMap) -> TableModel.RowChangeSet {
-        let currentDevices = Set(newDeviceTablePositions.keys)
-        let oldDevices = Set(oldDeviceTablePositions.keys)
-        //TODO: break these out into methods
-        let devicesWhichMovedSections = currentDevices
-            .filter { identifier in
-                guard
-                    let oldIndex = oldDeviceTablePositions[identifier],
-                    let newIndex = newDeviceTablePositions[identifier]
-                    else {
-                        return false
-                }
-                let movedSections = oldIndex.section != newIndex.section
-                return movedSections
-        }
-        
-        let insertedDevices = currentDevices
-            .subtracting(oldDevices)
-        
-        let insertedIndexPaths = insertedDevices
+        let inserted = insertedDevices(newDevices: newDeviceTablePositions, oldDevices: oldDeviceTablePositions)
+        let devicesWhichMovedSections = movedSections(newDevices: newDeviceTablePositions, oldDevices: oldDeviceTablePositions)
+
+        //Need to add the newly inserted rows plus the new positions of the rows which moved sections
+        let insertedIndexPaths = inserted
             .union(devicesWhichMovedSections)
             .flatMap { newDeviceTablePositions[$0] }
         
-        let oldSectionCount = Set(oldDeviceTablePositions.values).map { $0.section }.count
-        let newSectionCount = Set(newDeviceTablePositions.values).map { $0.section }.count
-        let addedSections = newSectionCount > oldSectionCount ? [1] : [0]
+        let addedSections = sectionsAdded(newDevices: newDeviceTablePositions, oldDevices: oldDeviceTablePositions)
         let deletedIndexPaths = devicesWhichMovedSections.flatMap { oldDeviceTablePositions[$0] }
         return TableModel.RowChangeSet(addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths, addedSections: IndexSet(addedSections))
+    }
+    
+    private func insertedDevices(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> Set<UUID> {
+        let currentDevices = Set(newDevices.keys)
+        let oldDevices = Set(oldDevices.keys)
+        return currentDevices.subtracting(oldDevices)
+    }
+    
+    private func movedSections(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> Set<UUID> {
+        let currentDevices = Set(newDevices.keys)
+        return currentDevices
+            .filter { identifier in
+                guard
+                    let oldIndex = oldDevices[identifier],
+                    let newIndex = newDevices[identifier]
+                    else {
+                        return false
+                }
+                return  oldIndex.section != newIndex.section
+        }
+    }
+    
+    private func sectionsAdded(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> IndexSet {
+        func countSections(devicePathMap: DeviceIndexPathMap) -> Int {
+            return Set(devicePathMap.values).map { $0.section }.count
+        }
+        let oldSectionCount = countSections(devicePathMap: oldDevices)
+        let newSectionCount = countSections(devicePathMap: newDevices)
+        return newSectionCount > oldSectionCount ? [1] : [0]
     }
     
     struct TableModel {
