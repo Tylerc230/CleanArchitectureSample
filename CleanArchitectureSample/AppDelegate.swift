@@ -12,18 +12,18 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        let bleListView = BLEListViewController.instantiateFromStoryboard()
+    let rootFlowCoordinator: BLEListFlowCoordinator
+    override init() {
         let deviceManager = StubBLEDeviceManager()
         let deviceRepo = StubDeviceRepository()
-        let sceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: deviceManager, deviceRepository: deviceRepo)
-        bleListView.sceneCoordinator = sceneCoordinator
-        window?.rootViewController = bleListView
+        rootFlowCoordinator = BLEListFlowCoordinator(deviceManager: deviceManager, deviceRepository: deviceRepo)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             deviceManager.discover(device: BLEDevice(identifier: UUID(), type: "Fake device"))
         }
-        
-
+        super.init()
+    }
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        window?.rootViewController = rootFlowCoordinator.rootViewController
         return true
     }
 }
