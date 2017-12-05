@@ -11,7 +11,7 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var window: UIWindow?
+    let window = UIWindow()
     let rootFlowCoordinator: BLEListFlowCoordinator
     override init() {
         let deviceManager = StubBLEDeviceManager()
@@ -23,7 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         super.init()
     }
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        window?.rootViewController = rootFlowCoordinator.rootViewController
+        window.rootViewController = rootFlowCoordinator.rootViewController
+        window.makeKeyAndVisible()
         return true
     }
 }
