@@ -5,6 +5,8 @@
 //  Created by Tyler Casselman on 11/30/17.
 //  Copyright © 2017 Tyler Casselman. All rights reserved.
 //
+import Foundation
+
 protocol BLEListUI: class {
     func updateTable(animateChangeSet: BLEListState.TableModel.RowChangeSet?)
 }
@@ -21,6 +23,11 @@ protocol BLEDeviceRepository {
     func fetchAllDevices() -> [DeviceEntry]
 }
 
+protocol BLEListSceneCoordinatorDelegate: class {
+    func discoveredDeviceSelected(_ discoveredDevice: BLEDevice)
+    func knownDeviceSelected(_ knownDevice: DeviceEntry)
+}
+
 class BLEListSceneCoordinator {
     init(ui: BLEListUI, bleDeviceManager: BLEDeviceManager, deviceRepository: BLEDeviceRepository) {
         self.ui = ui
@@ -29,6 +36,8 @@ class BLEListSceneCoordinator {
         self.deviceManager.observer = self
         setInitialState()
     }
+    
+    weak var delegate: BLEListSceneCoordinatorDelegate?
 
     var tableModel: BLEListState.TableModel {
         return state.tableModel
@@ -36,6 +45,17 @@ class BLEListSceneCoordinator {
     
     func viewDidLoad() {
         ui?.updateTable(animateChangeSet: nil)
+    }
+    
+    func indexPathSelected(_ indexPath: IndexPath) {
+        switch indexPath.section {
+        case 0:
+            let device = state.deviceEntry(at: indexPath.row)
+            delegate?.knownDeviceSelected(device)
+        default:
+            let device = state.discoveredDevice(at: indexPath.row)
+            delegate?.discoveredDeviceSelected(device)
+        }
     }
     
     private func setInitialState() {

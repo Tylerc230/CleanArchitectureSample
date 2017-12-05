@@ -43,7 +43,9 @@ extension BLEListViewController: BLEListUI {
 }
 
 extension BLEListViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        sceneCoordinator?.indexPathSelected(indexPath)
+    }
 }
 
 extension BLEListViewController: UITableViewDataSource {

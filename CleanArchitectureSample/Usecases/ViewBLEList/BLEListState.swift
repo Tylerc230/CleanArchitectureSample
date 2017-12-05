@@ -9,6 +9,14 @@ struct BLEListState {
         return inRangeDevices.isEmpty
     }
     
+    func deviceEntry(at index: Int) -> DeviceEntry {
+        return knownDevices[index]
+    }
+    
+    func discoveredDevice(at index: Int) -> BLEDevice {
+        return inRangeDevices[index]
+    }
+    
     mutating func append(discoveredBLEDevices devices: [BLEDevice]) -> TableModel.RowChangeSet {
         inRangeDevices += devices
         return buildTableModel()
