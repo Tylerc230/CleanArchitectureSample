@@ -13,8 +13,8 @@ class BLEEditSpec: QuickSpec {
     override func spec() {
         var state: BLEEditState!
         describe("creating a new device entry") {
+            let discovered = BLEDevice(identifier: UUID(), type: "Fake Type")
             beforeEach {
-                let discovered = BLEDevice(identifier: UUID(), type: "Fake Type")
                 state = BLEEditState(newEntryWith: discovered)
             }
             
@@ -34,8 +34,13 @@ class BLEEditSpec: QuickSpec {
                 beforeEach {
                     state.inputName = "ab"
                 }
+                
                 it("still has disabled create button") {
                     expect(state.saveButtonEnabled).to(beFalse())
+                }
+                
+                it("doesn't have a valid device entry yet") {
+                    expect(state.validDeviceEntry).to(beNil())
                 }
             }
             context("user enters 3 characters for name") {
@@ -46,6 +51,19 @@ class BLEEditSpec: QuickSpec {
                 it("has an enabled create button") {
                     expect(state.saveButtonEnabled).to(beTrue())
                 }
+                
+                describe("the entry") {
+                    it("has the same uuid and type as the BLEDevice and text matches text field") {
+                        guard let validDevice = state.validDeviceEntry else {
+                            fail("should have a valid device")
+                            return
+                        }
+                        expect(validDevice.identifier) == discovered.identifier
+                        expect(validDevice.type) == discovered.type
+                        expect(validDevice.name) == "abc"
+                    }
+                }
+                
             }
         }
         
