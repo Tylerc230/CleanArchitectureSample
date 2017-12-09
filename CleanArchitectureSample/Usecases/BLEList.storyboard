@@ -156,10 +156,18 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Device name" id="EQp-r3-nz0">
-                        <barButtonItem key="rightBarButtonItem" title="Update" style="plain" id="MoH-b3-fhd"/>
+                        <barButtonItem key="rightBarButtonItem" title="Update" style="plain" id="MoH-b3-fhd">
+                            <connections>
+                                <action selector="saveTapped" destination="YXC-A2-G0W" id="pQW-tV-9vV"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <nil key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="textField" destination="2nx-yC-AsM" id="sQL-ox-xxp"/>
+                        <outlet property="typeLabel" destination="cyM-OE-zF7" id="muM-Cu-jpT"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OcF-63-pB4" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

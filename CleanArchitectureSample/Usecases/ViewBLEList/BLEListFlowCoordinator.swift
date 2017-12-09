@@ -26,11 +26,21 @@ class BLEListFlowCoordinator {
     }
     
     private func name(discoveredDevice: BLEDevice) {
-        
+        let ui = showEditView()
+        let sceneCoordinator = BLEEditSceneCoordinator(forNewDevice: discoveredDevice, ui: ui)
+        ui.sceneCoordinator = sceneCoordinator
     }
     
     private func update(knownDevice: DeviceEntry) {
-        
+        let ui = showEditView()
+        let sceneCoordinator = BLEEditSceneCoordinator(forExistingEntry: knownDevice, ui: ui)
+        ui.sceneCoordinator = sceneCoordinator
+    }
+    
+    private func showEditView() -> BLEEditViewController {
+        let editView = BLEEditViewController.instatiateFromStoryboard()
+        nav.pushViewController(editView, animated: true)
+        return editView
     }
 }
 
