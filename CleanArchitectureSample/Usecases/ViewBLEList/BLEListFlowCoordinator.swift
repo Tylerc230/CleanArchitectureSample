@@ -28,12 +28,14 @@ class BLEListFlowCoordinator {
     private func name(discoveredDevice: BLEDevice) {
         let ui = showEditView()
         let sceneCoordinator = BLEEditSceneCoordinator(forNewDevice: discoveredDevice, ui: ui)
+        sceneCoordinator.delegate = self
         ui.sceneCoordinator = sceneCoordinator
     }
     
     private func update(knownDevice: DeviceEntry) {
         let ui = showEditView()
         let sceneCoordinator = BLEEditSceneCoordinator(forExistingEntry: knownDevice, ui: ui)
+        sceneCoordinator.delegate = self
         ui.sceneCoordinator = sceneCoordinator
     }
     
@@ -53,4 +55,15 @@ extension BLEListFlowCoordinator: BLEListSceneCoordinatorDelegate {
         name(discoveredDevice: discoveredDevice)
     }
     
+}
+
+extension  BLEListFlowCoordinator: BLEEditSceneDelegate {
+    func didSave(device: DeviceEntry) {
+        nav.popViewController(animated: true)
+        deviceRepository.save(device: device)
+    }
+    
+    func didCancel() {
+        nav.popViewController(animated: true)
+    }
 }

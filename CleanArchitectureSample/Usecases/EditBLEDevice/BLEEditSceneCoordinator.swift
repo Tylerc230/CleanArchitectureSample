@@ -12,24 +12,26 @@ protocol BLEEditUI: class {
     func enableSaveButton(_ enable: Bool)
 }
 
+protocol BLEEditSceneDelegate: class {
+    func didSave(device: DeviceEntry)
+    func didCancel()
+}
+
 class BLEEditSceneCoordinator {
-    private var state: BLEEditState
-    private let ui: BLEEditUI
-    private let deviceRepository: BLEDeviceRepository
-    convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI, repository: BLEDeviceRepository) {
+    weak var delegate: BLEEditSceneDelegate?
+    convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI) {
         let state = BLEEditState(newEntryWith: discoveredDevice)
-        self.init(state: state, ui: ui, repository: repository)
+        self.init(state: state, ui: ui)
     }
     
-    convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI, repository: BLEDeviceRepository) {
+    convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI) {
         let state = BLEEditState(updateEntryWith: knownDevice)
-        self.init(state: state, ui: ui, repository: repository)
+        self.init(state: state, ui: ui)
     }
     
-    private init(state: BLEEditState, ui: BLEEditUI, repository: BLEDeviceRepository) {
+    private init(state: BLEEditState, ui: BLEEditUI) {
         self.state = state
         self.ui = ui
-        self.deviceRepository = repository
     }
     
     func textFieldDidUpdate(with newText: String) {
@@ -43,9 +45,12 @@ class BLEEditSceneCoordinator {
     
     func saveTapped() {
         guard let deviceToSave = state.validDeviceEntry else {
+            delegate?.didCancel()
             return
         }
-        deviceRepository.save(device: deviceToSave)
+        delegate?.didSave(device: deviceToSave)
     }
     
+    private var state: BLEEditState
+    private let ui: BLEEditUI
 }

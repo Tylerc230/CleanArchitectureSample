@@ -40,7 +40,7 @@ class BLEListSceneCoordinator {
         case 0:
             let device = state.deviceEntry(at: indexPath.row)
             delegate?.knownDeviceSelected(device)
-        default:
+        default://1
             let device = state.discoveredDevice(at: indexPath.row)
             delegate?.discoveredDeviceSelected(device)
         }
