@@ -10,35 +10,62 @@ import Foundation
 struct BLEEditState {
     init(newEntryWith discoveredDevice: BLEDevice) {
         inputName = ""
-        identifier = discoveredDevice.identifier
-        type = discoveredDevice.type
+        mode = .newEntry(discoveredDevice)
         namePlaceholderText = "Name your new device"
     }
     
     init(updateEntryWith knownDevice: DeviceEntry) {
         inputName = knownDevice.name
-        identifier = knownDevice.identifier
-        type = knownDevice.type
+        mode = .updateEntry(knownDevice)
         namePlaceholderText = "Update your existing device"
     }
     
     var inputName: String
     let namePlaceholderText: String
     var saveButtonEnabled: Bool {
-        return isInputNameValid
+        return isValidForSaving
     }
     
     var validDeviceEntry: DeviceEntry? {
-        guard isInputNameValid else {
-            return nil
+        guard
+            isValidForSaving
+            else {
+                return nil
         }
         return DeviceEntry(identifier: identifier, name: inputName, type: type)
     }
     
+    private enum Mode {
+        case newEntry(BLEDevice), updateEntry(DeviceEntry)
+    }
+    private var isValidForSaving: Bool {
+        switch mode {
+        case .newEntry(_):
+            return isInputNameValid
+        case .updateEntry(let initialEntry):
+            let nameDidChange = initialEntry.name != inputName
+            return nameDidChange && isInputNameValid
+        }
+    }
     private var isInputNameValid: Bool {
         return inputName.count >= 3
     }
-    private let identifier: UUID
-    private let type: String
+    private let mode: Mode
+    private var identifier: UUID {
+        switch mode {
+        case .newEntry(let discoveredDevice):
+            return discoveredDevice.identifier
+        case .updateEntry(let knownDevice):
+            return knownDevice.identifier
+        }
+    }
     
+    private var type: String {
+        switch mode {
+        case .newEntry(let discoveredDevice):
+            return discoveredDevice.type
+        case .updateEntry(let knownDevice):
+            return knownDevice.type
+        }
+    }
 }

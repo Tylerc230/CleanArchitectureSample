@@ -68,13 +68,18 @@ class BLEEditSpec: QuickSpec {
         }
         
         describe("updating an existing entry") {
+            let knownDevice = DeviceEntry(identifier: UUID(), name: "old name", type: "Fake Type")
             beforeEach {
-                let knownDevice = DeviceEntry(identifier: UUID(), name: "old name", type: "Fake Type")
                 state = BLEEditState(updateEntryWith: knownDevice)
             }
             
             it("has the old name set to input text") {
                 expect(state.inputName) == "old name"
+            }
+            describe("the unchanged entry") {
+                it("is not valid to be saved") {//we don't want to allow saving of unmodified entries
+                    expect(state.saveButtonEnabled).to(beFalse())
+                }
             }
         }
         
