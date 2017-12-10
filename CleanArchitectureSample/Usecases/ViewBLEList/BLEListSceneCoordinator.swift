@@ -11,19 +11,6 @@ protocol BLEListUI: class {
     func updateTable(animateChangeSet: BLEListState.TableModel.RowChangeSet?)
 }
 
-protocol BLEDeviceManagerObserver: class {
-    func didDiscover(device: BLEDevice)
-}
-
-protocol BLEDeviceManager: class {
-    weak var observer: BLEDeviceManagerObserver? { get set }
-}
-
-protocol BLEDeviceRepository {
-    func fetchAllDevices() -> [DeviceEntry]
-    func save(device: DeviceEntry)
-}
-
 protocol BLEListSceneCoordinatorDelegate: class {
     func discoveredDeviceSelected(_ discoveredDevice: BLEDevice)
     func knownDeviceSelected(_ knownDevice: DeviceEntry)
