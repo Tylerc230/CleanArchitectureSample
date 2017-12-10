@@ -21,6 +21,7 @@ protocol BLEDeviceManager: class {
 
 protocol BLEDeviceRepository {
     func fetchAllDevices() -> [DeviceEntry]
+    func save(device: DeviceEntry)
 }
 
 protocol BLEListSceneCoordinatorDelegate: class {

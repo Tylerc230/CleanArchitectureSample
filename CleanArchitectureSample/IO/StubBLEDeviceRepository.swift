@@ -11,4 +11,8 @@ class StubDeviceRepository: BLEDeviceRepository {
     func fetchAllDevices() -> [DeviceEntry] {
         return (0..<3).map { DeviceEntry(identifier: UUID(), name: "Device \($0 + 1)", type: "Fake device") }
     }
+    
+    func save(device: DeviceEntry) {
+        
+    }
 }

@@ -11,8 +11,6 @@
 		2F026C4C1FD67364007A6A28 /* BLEEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F026C4A1FD67364007A6A28 /* BLEEditViewController.swift */; };
 		2F21A13A1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */; };
 		2F21A13B1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */; };
-		2F2B88861FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */; };
-		2F2B88891FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */; };
 		2FA5E7061FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA5E7071FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA920661FC3FFB2007312B7 /* BLEListSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920641FC3FFB2007312B7 /* BLEListSpec.swift */; };
@@ -73,8 +71,6 @@
 		2F026C4A1FD67364007A6A28 /* BLEEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEEditViewController.swift; sourceTree = "<group>"; };
 		2F0F89AA1FC3E0D000CBDBDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListFlowCoordinator.swift; sourceTree = "<group>"; };
-		2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceManagerImpl.swift; sourceTree = "<group>"; };
-		2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEDeviceRepositoryImpl.swift; sourceTree = "<group>"; };
 		2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListSceneCoordinator.swift; sourceTree = "<group>"; };
 		2FA920501FC3EFA9007312B7 /* CleanArchitectureCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CleanArchitectureCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FA9205B1FC3EFC1007312B7 /* CleanArchitectureCLITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CleanArchitectureCLITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -223,8 +219,6 @@
 		2FBE7DBE1FD65B5900F633FC /* IO */ = {
 			isa = PBXGroup;
 			children = (
-				2F2B88851FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift */,
-				2F2B88881FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift */,
 				2FB7A2761FD5123300C94ECD /* StubBLEDeviceManager.swift */,
 				2FB7A2791FD5124C00C94ECD /* StubBLEDeviceRepository.swift */,
 			);
@@ -583,8 +577,6 @@
 				2FEFBE771FD6767E00C13DB7 /* BLEEditState.swift in Sources */,
 				2FB7A27A1FD5124C00C94ECD /* StubBLEDeviceRepository.swift in Sources */,
 				2F21A13A1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */,
-				2F2B88891FD4FBB700B936B0 /* BLEDeviceRepositoryImpl.swift in Sources */,
-				2F2B88861FD4FB5500B936B0 /* BLEDeviceManagerImpl.swift in Sources */,
 				2FFEE95A1FD11AF8008B40B4 /* BLEListViewController.swift in Sources */,
 				2FB7A2741FD5069100C94ECD /* InRangeCell.swift in Sources */,
 				2FA920731FC53A18007312B7 /* DeviceEntry.swift in Sources */,

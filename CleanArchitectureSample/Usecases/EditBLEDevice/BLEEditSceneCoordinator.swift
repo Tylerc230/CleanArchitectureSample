@@ -13,21 +13,23 @@ protocol BLEEditUI: class {
 }
 
 class BLEEditSceneCoordinator {
-    var state: BLEEditState
-    let ui: BLEEditUI
-    convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI) {
+    private var state: BLEEditState
+    private let ui: BLEEditUI
+    private let deviceRepository: BLEDeviceRepository
+    convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI, repository: BLEDeviceRepository) {
         let state = BLEEditState(newEntryWith: discoveredDevice)
-        self.init(state: state, ui: ui)
+        self.init(state: state, ui: ui, repository: repository)
     }
     
-    convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI) {
+    convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI, repository: BLEDeviceRepository) {
         let state = BLEEditState(updateEntryWith: knownDevice)
-        self.init(state: state, ui: ui)
+        self.init(state: state, ui: ui, repository: repository)
     }
     
-    private init(state: BLEEditState, ui: BLEEditUI) {
+    private init(state: BLEEditState, ui: BLEEditUI, repository: BLEDeviceRepository) {
         self.state = state
         self.ui = ui
+        self.deviceRepository = repository
     }
     
     func textFieldDidUpdate(with newText: String) {
@@ -40,7 +42,10 @@ class BLEEditSceneCoordinator {
     }
     
     func saveTapped() {
-        
+        guard let deviceToSave = state.validDeviceEntry else {
+            return
+        }
+        deviceRepository.save(device: deviceToSave)
     }
     
 }
