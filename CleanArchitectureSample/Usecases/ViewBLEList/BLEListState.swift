@@ -53,7 +53,7 @@ struct BLEListState {
         let unknownDeviceIDPathPairs = unknownDevices
             .enumerated()
             .map { (row, bleDevice) in
-                return (bleDevice.identifier, IndexPath(row: row, section: 1))
+                return (bleDevice.identifier, IndexPath(row: row, section: sections.count - 1))
         }
         let newDeviceTablePositions = Dictionary(uniqueKeysWithValues: knownDeviceIDPathPairs + unknownDeviceIDPathPairs)
         let changeSet = createChangeSet(newDeviceTablePositions: newDeviceTablePositions, oldDeviceTablePositions: deviceTablePositions)
@@ -97,12 +97,13 @@ struct BLEListState {
     }
     
     private func sectionsAdded(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> IndexSet {
-        func countSections(devicePathMap: DeviceIndexPathMap) -> Int {
-            return Set(devicePathMap.values).map { $0.section }.count
+        func sections(from devicePathMap: DeviceIndexPathMap) -> IndexSet {
+            let sections = Set(devicePathMap.values).map { $0.section }
+            return IndexSet(sections)
         }
-        let oldSectionCount = countSections(devicePathMap: oldDevices)
-        let newSectionCount = countSections(devicePathMap: newDevices)
-        return newSectionCount > oldSectionCount ? [1] : [0]
+        let oldSections = sections(from: oldDevices)
+        let newSections = sections(from: newDevices)
+        return newSections.subtracting(oldSections)
     }
     
     struct TableModel {

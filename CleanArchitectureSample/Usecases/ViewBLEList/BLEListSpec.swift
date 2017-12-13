@@ -11,6 +11,13 @@ class BLEListSpec: QuickSpec {
             it("shows some copy explaining that the user needs a discoverable device") {
                 expect(state.showNoDevicesCopy).to(beTrue())
             }
+            
+            it("has one section added when a device comes into range") {
+                let device = bleDevice()
+                let changeSet = state.append(discoveredBLEDevices: [device])
+                expect(changeSet.addedRows) == [IndexPath(row: 0, section: 0)]
+                expect(changeSet.addedSections) == [0]
+            }
         }
         describe("one ble devices is in range") {
             beforeEach {
@@ -32,8 +39,9 @@ class BLEListSpec: QuickSpec {
             
             it("has two rows after another device discovered") {
                 let device = bleDevice()
-                _ = state.append(discoveredBLEDevices: [device])
+                let changeSet = state.append(discoveredBLEDevices: [device])
                 expect(state.tableModel.numRows(inSection: 0)) == 2
+                expect(changeSet.addedRows) == [IndexPath(row: 1, section: 0)]
             }
         }
         

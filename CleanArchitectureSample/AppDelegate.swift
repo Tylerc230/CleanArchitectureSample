@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let rootFlowCoordinator: BLEListFlowCoordinator
     override init() {
         let deviceManager = StubBLEDeviceManager()
-        let deviceRepo = StubDeviceRepository()
+        let deviceRepo = InMemoryBLEDeviceRepository()
         rootFlowCoordinator = BLEListFlowCoordinator(deviceManager: deviceManager, deviceRepository: deviceRepo)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             deviceManager.discover(device: BLEDevice(identifier: UUID(), type: "Fake device"))
