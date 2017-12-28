@@ -63,7 +63,6 @@ class BLEEditSpec: QuickSpec {
                         expect(validDevice.name) == "abc"
                     }
                 }
-                
             }
         }
         
