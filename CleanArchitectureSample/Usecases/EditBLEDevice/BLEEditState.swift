@@ -10,18 +10,29 @@ import Foundation
 struct BLEEditState {
     init(newEntryWith discoveredDevice: BLEDevice) {
         inputName = ""
+        deviceType = discoveredDevice.type
         mode = .newEntry(discoveredDevice)
         namePlaceholderText = "Name your new device"
     }
     
     init(updateEntryWith knownDevice: DeviceEntry) {
         inputName = knownDevice.name
+        deviceType = knownDevice.type
         mode = .updateEntry(knownDevice)
         namePlaceholderText = "Update your existing device"
     }
     
     var inputName: String
     let namePlaceholderText: String
+    let deviceType: String
+    var saveButtonText: String {
+        switch mode {
+        case .newEntry(_):
+            return "save"
+        case .updateEntry(_):
+            return "update"
+        }
+    }
     var saveButtonEnabled: Bool {
         return isValidForSaving
     }

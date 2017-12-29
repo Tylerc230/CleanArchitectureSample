@@ -8,6 +8,9 @@
 
 import Foundation
 protocol BLEEditUI: class {
+    func set(saveButtonText: String)
+    func set(deviceType: String)
+    func set(placeholderText: String)
     func set(textFieldText: String)
     func enableSaveButton(_ enable: Bool)
 }
@@ -40,7 +43,11 @@ class BLEEditSceneCoordinator {
     }
     
     func viewDidLoad() {
+        ui.set(saveButtonText: state.saveButtonText)
+        ui.set(deviceType: state.deviceType)
+        ui.set(placeholderText: state.namePlaceholderText)
         ui.set(textFieldText: state.inputName)
+        ui.enableSaveButton(state.saveButtonEnabled)
     }
     
     func saveTapped() {
