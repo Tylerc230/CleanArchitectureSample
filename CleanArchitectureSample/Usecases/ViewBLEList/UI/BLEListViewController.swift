@@ -9,7 +9,7 @@
 import UIKit
 
 class BLEListViewController: UIViewController {
-    typealias TableChangeSet = BLEListState.TableModel.RowChangeSet
+    typealias TableChangeSet = BLEListState.TableViewModel.RowChangeSet
     @IBOutlet var tableView: UITableView!
     var sceneCoordinator: BLEListSceneCoordinator?
     static func instantiateFromStoryboard() -> BLEListViewController {
