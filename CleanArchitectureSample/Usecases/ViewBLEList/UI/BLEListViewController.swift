@@ -9,6 +9,7 @@
 import UIKit
 
 class BLEListViewController: UIViewController {
+    var tableViewModel = BLEListState.TableViewModel()
     typealias TableChangeSet = BLEListState.TableViewModel.RowChangeSet
     @IBOutlet var tableView: UITableView!
     var sceneCoordinator: BLEListSceneCoordinator?
@@ -33,7 +34,8 @@ class BLEListViewController: UIViewController {
 }
 
 extension BLEListViewController: BLEListUI {
-    func updateTable(animateChangeSet changeSet: TableChangeSet?) {
+    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet changeSet: BLEListState.TableViewModel.RowChangeSet?) {
+        self.tableViewModel = tableViewModel
         guard let changeSet = changeSet else {
             tableView.reloadData()
             return
@@ -50,17 +52,15 @@ extension BLEListViewController: UITableViewDelegate {
 
 extension BLEListViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return sceneCoordinator?.tableModel.numSections ?? 0
+        return tableViewModel.numSections
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sceneCoordinator?.tableModel.numRows(inSection: section) ?? 0
+        return tableViewModel.numRows(inSection: section)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let config = sceneCoordinator?.tableModel.cellConfig(at: indexPath) else {
-            return UITableViewCell()
-        }
+        let config = tableViewModel.cellConfig(at: indexPath)
         switch config {
         case .known(let name, let type, let inRange):
             let cell = tableView.dequeueReusableCell(withIdentifier: KnownDeviceCell.identifier) as! KnownDeviceCell

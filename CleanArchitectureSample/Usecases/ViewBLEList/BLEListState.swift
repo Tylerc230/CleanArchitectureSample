@@ -1,9 +1,6 @@
 import Foundation
 struct BLEListState {
     private var deviceList = DeviceList()
-
-    private typealias DeviceIndexPathMap = [UUID: IndexPath]
-    private (set) var tableModel = TableViewModel(sections: [])
     var showNoDevicesCopy: Bool {
         return deviceList.isEmpty
     }
@@ -17,14 +14,15 @@ struct BLEListState {
         }
     }
     
-    mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) -> TableViewModel.RowChangeSet {
+    mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) -> (TableViewModel, TableViewModel.RowChangeSet) {
         let oldDeviceList = deviceList
         deviceList.append(newDeviceEntries: deviceEntries, newBLEDevices: bleDevices)
-        buildTableModel()
-        return TableViewModel.RowChangeSet(newDeviceList: deviceList, oldDeviceList: oldDeviceList)
+        let tableViewModel = buildTableModel()
+        let changeSet = TableViewModel.RowChangeSet(newDeviceList: deviceList, oldDeviceList: oldDeviceList)
+        return (tableViewModel, changeSet)
     }
     
-    private mutating func buildTableModel() {
+    private mutating func buildTableModel() -> TableViewModel {
         let sections: [[TableViewModel.CellConfig]] = deviceList.map {
             switch $0 {
             case .knownDevices(let deviceEntries):
@@ -38,90 +36,16 @@ struct BLEListState {
                 }
             }
         }
-        tableModel = TableViewModel(sections: sections)
+        return TableViewModel(sections: sections)
     }
-    
 
-    struct DeviceList: Collection {
-        typealias Element = DeviceType
-        typealias Index = Int
-        var startIndex: Index {
-            return devices.startIndex
-        }
-        
-        var endIndex: Index {
-           return devices.endIndex
-        }
-        
-        subscript(index: Index) -> Element {
-            return devices[index]
-        }
-        
-        func index(after i: Index) -> Index {
-            return devices.index(after: i)
-        }
-
-        private var devices = [DeviceType]()
-        private var discoveredDeviceCache: Set<UUID> = []
-        var isEmpty: Bool {
-            return devices.isEmpty
-        }
-        
-        func devices(at index: Int) -> DeviceType {
-            return devices[index]
-        }
-        
-        func isInRange(_ device: DeviceEntry) -> Bool {
-            return discoveredDeviceCache.contains(device.identifier)
-        }
-
-        mutating func append(newDeviceEntries: [DeviceEntry] = [], newBLEDevices: [BLEDevice] = []) {
-            let allDeviceEntries = devices.flatMap { (deviceType: DeviceType) -> [DeviceEntry] in
-                switch deviceType {
-                case .knownDevices(let existingDeviceEntries):
-                    return existingDeviceEntries
-                default:
-                    return []
-                }
-            } + newDeviceEntries
-            
-            
-            let allDiscoveredDevices = devices.flatMap { (deviceType: DeviceType) -> [BLEDevice] in
-                switch deviceType {
-                case .discoveredDevices(let existingBLEDevices):
-                    return existingBLEDevices
-                default:
-                    return []
-                }
-            } + newBLEDevices
-            
-            let deviceEntryIds = Set(allDeviceEntries.map { $0.identifier })
-            discoveredDeviceCache = Set(allDiscoveredDevices.map { $0.identifier})
-            let unknownDevices = allDiscoveredDevices.filter {
-                return !deviceEntryIds.contains($0.identifier)
-            }
-            devices.removeAll()
-            if !allDeviceEntries.isEmpty {
-                devices.append(.knownDevices(allDeviceEntries))
-            }
-
-            if !unknownDevices.isEmpty {
-                devices.append(.discoveredDevices(unknownDevices))
-            }
-        }
-        
-        enum DeviceType {
-            case knownDevices([DeviceEntry]), discoveredDevices([BLEDevice])
-        }
-    }
-    
     enum Transition {
         case newDeviceEntry(BLEDevice)
         case updateDeviceEntry(DeviceEntry)
     }
     
     struct TableViewModel {
-        init(sections: [[CellConfig]]) {
+        init(sections: [[CellConfig]] = []) {
             self.sections = sections
         }
         
@@ -148,9 +72,10 @@ struct BLEListState {
         }
         
         struct RowChangeSet {
+            private typealias DeviceIndexPathMap = [UUID: IndexPath]
             init(newDeviceList: DeviceList, oldDeviceList: DeviceList) {
-                let newDeviceMap = RowChangeSet.deviceIndexPathMap(for: newDeviceList)
-                let oldDeviceMap = RowChangeSet.deviceIndexPathMap(for: oldDeviceList)
+                let newDeviceMap = RowChangeSet.deviceToIndexPath(for: newDeviceList)
+                let oldDeviceMap = RowChangeSet.deviceToIndexPath(for: oldDeviceList)
                 let inserted = RowChangeSet.insertedDevices(newDevices: newDeviceMap, oldDevices: oldDeviceMap)
                 let devicesWhichMovedSections = RowChangeSet.movedSections(newDevices: newDeviceMap, oldDevices: oldDeviceMap)
                 
@@ -170,7 +95,7 @@ struct BLEListState {
                 self.addedSections = addedSections
             }
             
-            private static func deviceIndexPathMap(for deviceList: DeviceList) -> DeviceIndexPathMap {
+            private static func deviceToIndexPath(for deviceList: DeviceList) -> DeviceIndexPathMap {
                 let idIndexPathPairs: [(UUID, IndexPath)] = deviceList
                     .enumerated()
                     .flatMap { (section, deviceType) -> [(UUID, IndexPath)] in

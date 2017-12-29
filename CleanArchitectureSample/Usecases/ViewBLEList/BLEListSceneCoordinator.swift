@@ -8,7 +8,7 @@
 import Foundation
 
 protocol BLEListUI: class {
-    func updateTable(animateChangeSet: BLEListState.TableViewModel.RowChangeSet?)
+    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet: BLEListState.TableViewModel.RowChangeSet?)
 }
 
 protocol BLEListSceneCoordinatorDelegate: class {
@@ -27,12 +27,8 @@ class BLEListSceneCoordinator {
     
     weak var delegate: BLEListSceneCoordinatorDelegate?
 
-    var tableModel: BLEListState.TableViewModel {
-        return state.tableModel
-    }
-    
     func viewDidLoad() {
-        ui?.updateTable(animateChangeSet: nil)
+        ui?.update(tableViewModel: BLEListState.TableViewModel(), animateChangeSet: nil)
     }
     
     func indexPathSelected(_ indexPath: IndexPath) {
@@ -58,7 +54,7 @@ class BLEListSceneCoordinator {
 
 extension BLEListSceneCoordinator: BLEDeviceManagerObserver {
     func didDiscover(device: BLEDevice) {
-        let changeSet = state.append(bleDevices: [device])
-        ui?.updateTable(animateChangeSet: changeSet)
+        let (tableViewModel, changeSet) = state.append(bleDevices: [device])
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
 }
