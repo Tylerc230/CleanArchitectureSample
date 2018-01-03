@@ -8,17 +8,18 @@
 
 import UIKit
 class BLEListFlowCoordinator {
-    private let nav: UINavigationController
+    let nav: UINavigationController
     private let deviceManager: BLEDeviceManager
     private let deviceRepository: BLEDeviceRepository
+    private let bleListScene: BLEListSceneCoordinator
     init(deviceManager: BLEDeviceManager, deviceRepository: BLEDeviceRepository) {
         self.deviceManager = deviceManager
         self.deviceRepository = deviceRepository
         let bleListView = BLEListViewController.instantiateFromStoryboard()
         nav = UINavigationController(rootViewController: bleListView)
-        let sceneCoordinator = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: deviceManager, deviceRepository: deviceRepository)
-        bleListView.sceneCoordinator = sceneCoordinator
-        sceneCoordinator.delegate = self
+        bleListScene = BLEListSceneCoordinator(ui: bleListView, bleDeviceManager: deviceManager, deviceRepository: deviceRepository)
+        bleListView.sceneCoordinator = bleListScene
+        bleListScene.delegate = self
     }
     
     var rootViewController: UIViewController {
@@ -54,15 +55,22 @@ extension BLEListFlowCoordinator: BLEListSceneCoordinatorDelegate {
     func discoveredDeviceSelected(_ discoveredDevice: BLEDevice) {
         name(discoveredDevice: discoveredDevice)
     }
-    
 }
 
 extension  BLEListFlowCoordinator: BLEEditSceneDelegate {
-    func didSave(device: DeviceEntry) {
-        nav.popViewController(animated: true)
-        deviceRepository.save(device: device)
+    func didCreate(device: DeviceEntry) {
+        nav.pop(animated: true) { [weak self] in
+            self?.bleListScene.didCreate(device: device)
+        }
+        
     }
     
+    func didUpdate(device: DeviceEntry) {
+        nav.pop(animated: true) { [weak self] in
+            self?.bleListScene.didUpdate(device: device)
+        }
+    }
+
     func didCancel() {
         nav.popViewController(animated: true)
     }

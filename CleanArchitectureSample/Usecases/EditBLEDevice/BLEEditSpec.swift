@@ -39,8 +39,8 @@ class BLEEditSpec: QuickSpec {
                     expect(state.saveButtonEnabled).to(beFalse())
                 }
                 
-                it("doesn't have a valid device entry yet") {
-                    expect(state.validDeviceEntry).to(beNil())
+                it("can't save yet because the new name is invalide (needs to be at least 3 characters long)") {
+                    expect(state.save()).to(beNil())
                 }
             }
             context("user enters 3 characters for name") {
@@ -52,16 +52,15 @@ class BLEEditSpec: QuickSpec {
                     expect(state.saveButtonEnabled).to(beTrue())
                 }
                 
-                describe("the entry") {
-                    it("has the same uuid and type as the BLEDevice and text matches text field") {
-                        guard let validDevice = state.validDeviceEntry else {
-                            fail("should have a valid device")
-                            return
-                        }
-                        expect(validDevice.identifier) == discovered.identifier
-                        expect(validDevice.type) == discovered.type
-                        expect(validDevice.name) == "abc"
+
+                it("issues a create command with the same uuid and type as the BLEDevice and text matches text field") {
+                    guard let command = state.save(), case let .create(device) = command else {
+                        fail("no command found or not a create command")
+                        return
                     }
+                    expect(device.identifier) == discovered.identifier
+                    expect(device.type) == discovered.type
+                    expect(device.name) == "abc"
                 }
             }
         }
@@ -75,10 +74,25 @@ class BLEEditSpec: QuickSpec {
             it("has the old name set to input text") {
                 expect(state.inputName) == "old name"
             }
-            describe("the unchanged entry") {
-                it("is not valid to be saved") {//we don't want to allow saving of unmodified entries
-                    expect(state.saveButtonEnabled).to(beFalse())
+            
+            it("is not valid to be saved b/c the name hasn't been modified yet") {//we don't want to allow saving of unmodified entries
+                expect(state.saveButtonEnabled).to(beFalse())
+            }
+            
+            context("a valid name has been entered") {
+                beforeEach {
+                    state.inputName = "new name"
                 }
+                it("issues an update command with the proper parameters set") {
+                    guard let command = state.save(), case let .update(device) = command else {
+                        fail("no command issued or not update command")
+                        return
+                    }
+                    expect(device.name) == "new name"
+                    expect(device.identifier) == knownDevice.identifier
+                    expect(device.type) == knownDevice.type
+                }
+                
             }
         }
         

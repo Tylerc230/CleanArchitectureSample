@@ -16,25 +16,27 @@ protocol BLEEditUI: class {
 }
 
 protocol BLEEditSceneDelegate: class {
-    func didSave(device: DeviceEntry)
+    func didCreate(device: DeviceEntry)
+    func didUpdate(device: DeviceEntry)
     func didCancel()
 }
 
 class BLEEditSceneCoordinator {
     weak var delegate: BLEEditSceneDelegate?
-    convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI) {
+    convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI, deviceRepository: BLEDeviceRepository) {
         let state = BLEEditState(newEntryWith: discoveredDevice)
         self.init(state: state, ui: ui)
     }
     
-    convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI) {
+    convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI, deviceRepository: BLEDeviceRepository) {
         let state = BLEEditState(updateEntryWith: knownDevice)
         self.init(state: state, ui: ui)
     }
     
-    private init(state: BLEEditState, ui: BLEEditUI) {
+    private init(state: BLEEditState, ui: BLEEditUI, deviceRepository: BLEDeviceRepository) {
         self.state = state
         self.ui = ui
+        self.deviceRepository = deviceRepository
     }
     
     func textFieldDidUpdate(with newText: String) {
@@ -51,13 +53,22 @@ class BLEEditSceneCoordinator {
     }
     
     func saveTapped() {
-        guard let deviceToSave = state.validDeviceEntry else {
+        guard let dbCommand = state.save() else {
             delegate?.didCancel()
             return
         }
-        delegate?.didSave(device: deviceToSave)
+        switch dbCommand {
+        case .create(let device):
+            deviceRepository.create(deviceEntry: device)
+            delegate?.didCreate(device: device)
+        case .update(let device):
+            deviceRepository.update(deviceEntry: device)
+            delegate?.didUpdate(device: device)
+        }
+        
     }
     
     private var state: BLEEditState
     private let ui: BLEEditUI
+    private let deviceRepository: BLEDeviceRepository
 }

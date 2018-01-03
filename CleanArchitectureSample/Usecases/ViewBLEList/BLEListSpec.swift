@@ -127,6 +127,11 @@ class BLEListSpec: QuickSpec {
                 expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
                 expect(changeSet.deletedRows) == [IndexPath(row:0, section: 1)]
             }
+            it("reloads the cell when a device entry is updated") {
+                let updatedDevice = DeviceEntry(identifier: knownNotInRangeUUID, name: "Updated name", type: "Fake device type")
+                let (_, changeSet) = state.update(deviceEntries: [updatedDevice])
+                expect(changeSet.reloadedRows) == [IndexPath(row: 1, section: 0)]
+            }
         }
         
         describe("section addition and removal") {

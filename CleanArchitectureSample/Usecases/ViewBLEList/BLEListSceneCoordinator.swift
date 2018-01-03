@@ -42,6 +42,14 @@ class BLEListSceneCoordinator {
         }
     }
     
+    func didCreate(device: DeviceEntry) {
+        state.append(deviceEntries: [device])
+    }
+    
+    func didUpdate(device: DeviceEntry) {
+        state.update(deviceEntries: [device])
+    }
+    
     private func setInitialState() {
         _ = state.append(deviceEntries: deviceRepository.fetchAllDevices())
     }

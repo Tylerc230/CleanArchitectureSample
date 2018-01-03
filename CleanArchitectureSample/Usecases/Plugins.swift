@@ -18,5 +18,6 @@ protocol BLEDeviceManagerObserver: class {
 
 protocol BLEDeviceRepository {
     func fetchAllDevices() -> [DeviceEntry]
-    func save(device: DeviceEntry)
+    func create(deviceEntry: DeviceEntry)
+    func update(deviceEntry: DeviceEntry)
 }

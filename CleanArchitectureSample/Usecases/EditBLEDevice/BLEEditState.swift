@@ -37,7 +37,23 @@ struct BLEEditState {
         return isValidForSaving
     }
     
-    var validDeviceEntry: DeviceEntry? {
+    func save() -> Command? {
+        guard let device = validDeviceEntry else {
+            return nil
+        }
+        switch mode {
+        case .newEntry(_):
+            return .create(device)
+        case .updateEntry(_):
+            return .update(device)
+        }
+    }
+    
+    enum Command {
+        case create(DeviceEntry), update(DeviceEntry)
+    }
+    
+    private var validDeviceEntry: DeviceEntry? {
         guard
             isValidForSaving
             else {
@@ -49,6 +65,7 @@ struct BLEEditState {
     private enum Mode {
         case newEntry(BLEDevice), updateEntry(DeviceEntry)
     }
+    
     private var isValidForSaving: Bool {
         switch mode {
         case .newEntry(_):
