@@ -8,7 +8,7 @@
 import Foundation
 
 protocol BLEListUI: class {
-    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet: BLEListState.TableViewModel.RowChangeSet?)
+    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet: RowChangeSet?)
 }
 
 protocol BLEListSceneCoordinatorDelegate: class {
@@ -43,11 +43,13 @@ class BLEListSceneCoordinator {
     }
     
     func didCreate(device: DeviceEntry) {
-        state.append(deviceEntries: [device])
+        let (tableViewModel, changeSet) = state.append(deviceEntries: [device])
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
     func didUpdate(device: DeviceEntry) {
-        state.update(deviceEntries: [device])
+        let (tableViewModel, changeSet) = state.update(deviceEntries: [device])
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
     private func setInitialState() {

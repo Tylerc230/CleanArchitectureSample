@@ -25,12 +25,12 @@ class BLEEditSceneCoordinator {
     weak var delegate: BLEEditSceneDelegate?
     convenience init(forNewDevice discoveredDevice: BLEDevice, ui: BLEEditUI, deviceRepository: BLEDeviceRepository) {
         let state = BLEEditState(newEntryWith: discoveredDevice)
-        self.init(state: state, ui: ui)
+        self.init(state: state, ui: ui, deviceRepository: deviceRepository)
     }
     
     convenience init(forExistingEntry knownDevice: DeviceEntry, ui: BLEEditUI, deviceRepository: BLEDeviceRepository) {
         let state = BLEEditState(updateEntryWith: knownDevice)
-        self.init(state: state, ui: ui)
+        self.init(state: state, ui: ui, deviceRepository: deviceRepository)
     }
     
     private init(state: BLEEditState, ui: BLEEditUI, deviceRepository: BLEDeviceRepository) {

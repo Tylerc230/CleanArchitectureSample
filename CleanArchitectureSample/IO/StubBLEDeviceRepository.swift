@@ -12,7 +12,11 @@ class StubDeviceRepository: BLEDeviceRepository {
         return (0..<3).map { DeviceEntry(identifier: UUID(), name: "Device \($0 + 1)", type: "Fake device") }
     }
     
-    func save(device: DeviceEntry) {
+    func create(deviceEntry: DeviceEntry) {
+        
+    }
+    
+    func update(deviceEntry: DeviceEntry) {
         
     }
 }

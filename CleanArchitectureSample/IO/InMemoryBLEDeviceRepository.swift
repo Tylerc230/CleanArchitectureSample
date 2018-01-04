@@ -16,7 +16,11 @@ extension InMemoryBLEDeviceRepository: BLEDeviceRepository {
         return devices
     }
     
-    func save(device: DeviceEntry) {
-        devices.append(device)
+    func create(deviceEntry: DeviceEntry) {
+        devices.append(deviceEntry)
+    }
+    
+    func update(deviceEntry: DeviceEntry) {
+        
     }
 }

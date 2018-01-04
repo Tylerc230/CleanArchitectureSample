@@ -63,8 +63,8 @@ class BLEListSpec: QuickSpec {
             beforeEach {
                 //Originally has 2 unknown devices in the bottom section and 2 devices in the top (one is in range and one is not)
                 let knownInRangeUUID = UUID()
-                let knownInRangeDeviceEntry = deviceEntry(withUUID: knownInRangeUUID)//row: 0, sec: 0 and will be enabled b/c it is in range
-                let knownNotInRangeDeviceEntry = deviceEntry(withUUID: knownNotInRangeUUID)//row:1, sec:0 disabled
+                let knownNotInRangeDeviceEntry = deviceEntry(withUUID: knownNotInRangeUUID)//row:0, sec:0 disabled
+                let knownInRangeDeviceEntry = deviceEntry(withUUID: knownInRangeUUID)//row: 1, sec: 0 and will be enabled b/c it is in range
                 _ = state.append(deviceEntries: [knownNotInRangeDeviceEntry, knownInRangeDeviceEntry])
 
                 let knownDevice = bleDevice(withUUID: knownInRangeUUID)//This one will be in section 0 (bc it is known)
@@ -127,10 +127,11 @@ class BLEListSpec: QuickSpec {
                 expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
                 expect(changeSet.deletedRows) == [IndexPath(row:0, section: 1)]
             }
+            
             it("reloads the cell when a device entry is updated") {
                 let updatedDevice = DeviceEntry(identifier: knownNotInRangeUUID, name: "Updated name", type: "Fake device type")
                 let (_, changeSet) = state.update(deviceEntries: [updatedDevice])
-                expect(changeSet.reloadedRows) == [IndexPath(row: 1, section: 0)]
+                expect(changeSet.reloadedRows) == [IndexPath(row: 0, section: 0)]
             }
         }
         

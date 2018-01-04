@@ -28,14 +28,14 @@ class BLEListFlowCoordinator {
     
     private func name(discoveredDevice: BLEDevice) {
         let ui = showEditView()
-        let sceneCoordinator = BLEEditSceneCoordinator(forNewDevice: discoveredDevice, ui: ui)
+        let sceneCoordinator = BLEEditSceneCoordinator(forNewDevice: discoveredDevice, ui: ui, deviceRepository: deviceRepository)
         sceneCoordinator.delegate = self
         ui.sceneCoordinator = sceneCoordinator
     }
     
     private func update(knownDevice: DeviceEntry) {
         let ui = showEditView()
-        let sceneCoordinator = BLEEditSceneCoordinator(forExistingEntry: knownDevice, ui: ui)
+        let sceneCoordinator = BLEEditSceneCoordinator(forExistingEntry: knownDevice, ui: ui, deviceRepository: deviceRepository)
         sceneCoordinator.delegate = self
         ui.sceneCoordinator = sceneCoordinator
     }

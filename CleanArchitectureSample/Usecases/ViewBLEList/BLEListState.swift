@@ -14,11 +14,19 @@ struct BLEListState {
         }
     }
     
-    mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) -> (TableViewModel, TableViewModel.RowChangeSet) {
+    mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) -> (TableViewModel, RowChangeSet) {
         let oldDeviceList = deviceList
         deviceList.append(newDeviceEntries: deviceEntries, newBLEDevices: bleDevices)
         let tableViewModel = buildTableModel()
-        let changeSet = TableViewModel.RowChangeSet(newDeviceList: deviceList, oldDeviceList: oldDeviceList)
+        let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
+        return (tableViewModel, changeSet)
+    }
+    
+    mutating func update(deviceEntries: [DeviceEntry]) -> (TableViewModel, RowChangeSet) {
+        let oldDeviceList = deviceList
+        deviceList.update(deviceEntries: deviceEntries)
+        let tableViewModel = buildTableModel()
+        let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
         return (tableViewModel, changeSet)
     }
     
@@ -71,86 +79,7 @@ struct BLEListState {
             case known(String, String, Bool), discovered(String)
         }
         
-        struct RowChangeSet {
-            private typealias DeviceIndexPathMap = [UUID: IndexPath]
-            init(newDeviceList: DeviceList, oldDeviceList: DeviceList) {
-                let newDeviceMap = RowChangeSet.deviceToIndexPath(for: newDeviceList)
-                let oldDeviceMap = RowChangeSet.deviceToIndexPath(for: oldDeviceList)
-                let inserted = RowChangeSet.insertedDevices(newDevices: newDeviceMap, oldDevices: oldDeviceMap)
-                let devicesWhichMovedSections = RowChangeSet.movedSections(newDevices: newDeviceMap, oldDevices: oldDeviceMap)
-                
-                //Need to add the newly inserted rows plus the new positions of the rows which moved sections
-                let insertedIndexPaths = inserted
-                    .union(devicesWhichMovedSections)
-                    .flatMap { newDeviceMap[$0] }
-                
-                let addedSections = RowChangeSet.sectionsAdded(newDevices: newDeviceMap, oldDevices: oldDeviceMap)
-                let deletedIndexPaths = devicesWhichMovedSections.flatMap { oldDeviceMap[$0] }
-                self.init(addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths, addedSections: IndexSet(addedSections))
-            }
-            
-            private init(addedRows: [IndexPath], deletedRows: [IndexPath], addedSections: IndexSet) {
-                self.addedRows = addedRows
-                self.deletedRows = deletedRows
-                self.addedSections = addedSections
-            }
-            
-            private static func deviceToIndexPath(for deviceList: DeviceList) -> DeviceIndexPathMap {
-                let idIndexPathPairs: [(UUID, IndexPath)] = deviceList
-                    .enumerated()
-                    .flatMap { (section, deviceType) -> [(UUID, IndexPath)] in
-                        switch deviceType {
-                        case .knownDevices(let devices):
-                            return devices
-                                .enumerated()
-                                .map { (row, device) in
-                                    return (device.identifier, IndexPath(row: row, section: section))
-                            }
-                        case .discoveredDevices(let devices):
-                            return devices
-                                .enumerated()
-                                .map { (row, device) in
-                                    return (device.identifier, IndexPath(row: row, section: section))
-                            }
-                        }
-                }
-                return Dictionary(uniqueKeysWithValues: idIndexPathPairs)
-            }
-            
-            private static func insertedDevices(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> Set<UUID> {
-                let currentDevices = Set(newDevices.keys)
-                let oldDevices = Set(oldDevices.keys)
-                return currentDevices.subtracting(oldDevices)
-            }
-            
-            private static func movedSections(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> Set<UUID> {
-                let currentDevices = Set(newDevices.keys)
-                return currentDevices
-                    .filter { identifier in
-                        guard
-                            let oldIndex = oldDevices[identifier],
-                            let newIndex = newDevices[identifier]
-                            else {
-                                return false
-                        }
-                        return  oldIndex.section != newIndex.section
-                }
-            }
-            
-            private static func sectionsAdded(newDevices: DeviceIndexPathMap, oldDevices: DeviceIndexPathMap) -> IndexSet {
-                func sections(from devicePathMap: DeviceIndexPathMap) -> IndexSet {
-                    let sections = Set(devicePathMap.values).map { $0.section }
-                    return IndexSet(sections)
-                }
-                let oldSections = sections(from: oldDevices)
-                let newSections = sections(from: newDevices)
-                return newSections.subtracting(oldSections)
-            }
-            let addedRows: [IndexPath]
-            let deletedRows: [IndexPath]
-            let addedSections: IndexSet
-        }
-        
+
         private let sections: [[CellConfig]]
     }
 }
