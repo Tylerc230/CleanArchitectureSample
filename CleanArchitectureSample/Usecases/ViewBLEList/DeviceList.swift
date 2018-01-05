@@ -33,6 +33,14 @@ struct DeviceList {
     
     enum DeviceType {
         case knownDevices([DeviceEntry]), discoveredDevices([BLEDevice])
+        func sameType(as other: DeviceType) -> Bool {
+            switch (self, other) {
+            case (.knownDevices, .knownDevices), (.discoveredDevices, .discoveredDevices):
+                return true
+            default:
+                return false
+            }
+        }
     }
     
     private var devices = [DeviceType]()

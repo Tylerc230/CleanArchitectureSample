@@ -28,7 +28,9 @@ class BLEListViewController: UIViewController {
             tableView.reloadRows(at: changeSet.reloadedRows, with: .fade)
             tableView.insertRows(at: changeSet.addedRows, with: .fade)
             tableView.deleteRows(at: changeSet.deletedRows, with: .fade)
+            tableView.reloadSections(changeSet.reloadedSections, with: .fade)
             tableView.insertSections(changeSet.addedSections, with: .fade)
+            tableView.deleteSections(changeSet.deletedSections, with: .fade)
         }, completion: nil)
     }
 }

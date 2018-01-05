@@ -8,19 +8,14 @@
 
 import Foundation
 struct RowChangeSet {
-    init(reloadedRows: [IndexPath], addedRows: [IndexPath], deletedRows: [IndexPath], addedSections: IndexSet) {
-        self.addedRows = addedRows
-        self.deletedRows = deletedRows
-        self.addedSections = addedSections
-        self.reloadedRows = reloadedRows
-    }
-    
     //Deleting and reloading happen first (index paths refer to the original table view model)
     //Inserts take the previous deletes into account
+    let reloadedRows: [IndexPath]
     let addedRows: [IndexPath]
     let deletedRows: [IndexPath]
+    let reloadedSections: IndexSet
     let addedSections: IndexSet
-    let reloadedRows: [IndexPath]
+    let deletedSections: IndexSet
 }
 
 fileprivate typealias DeviceIndexPathMap = [UUID: IndexPath]
@@ -70,10 +65,11 @@ struct RowChangeSetComputation {
             .flatMap { newDeviceMap[$0] }
         
         let addedSections = sectionsAdded()
+        let deletedSections = sectionsDeleted()
         let deletedIndexPaths = devicesWhichMovedSections.flatMap { oldDeviceMap[$0] }
         let modified = modifiedDevices()
         let reloadedIndexPaths = modified.flatMap { oldDeviceMap[$0] }//Reloads happen before inserts so we use the old device map
-        return RowChangeSet(reloadedRows: reloadedIndexPaths, addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths, addedSections: IndexSet(addedSections))
+        return RowChangeSet(reloadedRows: reloadedIndexPaths, addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths, reloadedSections:IndexSet(), addedSections: IndexSet(addedSections), deletedSections: deletedSections)
     }
     
     private func modifiedDevices() -> Set<UUID> {
@@ -121,12 +117,29 @@ struct RowChangeSetComputation {
     }
     
     private func sectionsAdded() -> IndexSet {
-        func sections(from devicePathMap: DeviceIndexPathMap) -> IndexSet {
-            let sections = Set(devicePathMap.values).map { $0.section }
-            return IndexSet(sections)
+        let sections = newDeviceList
+            .enumerated()
+            .filter {
+                let (_, deviceType) = $0
+                return !oldDeviceList.contains { deviceType.sameType(as: $0) }
+            }
+            .map { (offset, _) in
+                return offset
         }
-        let oldSections = sections(from: oldDeviceMap)
-        let newSections = sections(from: newDeviceMap)
-        return newSections.subtracting(oldSections)
+        return IndexSet(sections)
+    }
+    
+    private func sectionsDeleted() -> IndexSet {
+        let sections = oldDeviceList
+            .enumerated()
+            .filter {
+                let (_, deviceType) = $0
+                return !newDeviceList.contains { deviceType.sameType(as: $0) }
+            }
+            .map { (offset, _) in
+                return offset
+        }
+        return IndexSet(sections)
+        
     }
 }

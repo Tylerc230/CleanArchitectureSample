@@ -17,12 +17,15 @@ class BLEListSpec: QuickSpec {
                 let (_, changeSet) = state.append(bleDevices: [device])
                 expect(changeSet.addedRows) == [IndexPath(row: 0, section: 0)]
                 expect(changeSet.addedSections) == [0]
+                expect(changeSet.deletedSections) == []
             }
         }
+        
         describe("one ble devices is in range") {
             var tableViewModel: BLEListState.TableViewModel!
+            let unknownUUID = UUID()
             beforeEach {
-                let device = bleDevice()
+                let device = bleDevice(withUUID: unknownUUID)
                 let (tvm, _) = state.append(bleDevices: [device])
                 tableViewModel = tvm
             }
@@ -44,6 +47,13 @@ class BLEListSpec: QuickSpec {
                 let (tableViewModel, changeSet) = state.append(bleDevices: [device])
                 expect(tableViewModel.numRows(inSection: 0)) == 2
                 expect(changeSet.addedRows) == [IndexPath(row: 1, section: 0)]
+            }
+            
+            it("deletes discovered devices section and adds known devices section in its place, after the user adds a corresponding entry") {
+                let newEntry = deviceEntry(withUUID: unknownUUID)
+                let (_, changeSet) = state.append(deviceEntries: [newEntry])
+                expect(changeSet.deletedSections) == IndexSet(integer: 0)
+                expect(changeSet.addedSections) == IndexSet(integer: 0)
             }
             
             it("starts the 'create new device entry' flow on tapping a row") {
