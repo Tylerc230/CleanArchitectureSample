@@ -66,6 +66,23 @@ class BLEListSpec: QuickSpec {
             }
         }
         
+        describe("two ble devices in range") {
+            let unknownUUID = UUID()
+            beforeEach {
+                let device1 = bleDevice(withUUID: unknownUUID)
+                let device2 = bleDevice()
+                _ = state.append(bleDevices: [device1, device2])
+            }
+            
+            it("adds a new section, removes a row and adds a row when one of the devices is added to the db") {
+                let entry = deviceEntry(withUUID: unknownUUID)
+                let (_, changeSet) = state.append(deviceEntries: [entry])
+                expect(changeSet.addedSections) == [0]
+                expect(changeSet.addedRows) == [IndexPath(row: 0, section: 0)]
+                expect(changeSet.deletedRows) == [IndexPath(row: 0, section: 0)]
+            }
+        }
+        
         describe("three ble devices in range, two devices known, one in range device is known") {
             let knownNotInRangeUUID = UUID()
             let unknownInRangeUUID = UUID()
