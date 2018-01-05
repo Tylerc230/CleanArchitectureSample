@@ -44,7 +44,15 @@ struct BLEListState {
                 }
             }
         }
-        return TableViewModel(sections: sections)
+        let sectionTitles: [String] = deviceList.map {
+            switch $0 {
+            case .knownDevices:
+                return "My Devices"
+            case .discoveredDevices:
+                return "Discovered Devices"
+            }
+        }
+        return TableViewModel(sections: sections, sectionTitles: sectionTitles)
     }
 
     enum Transition {
@@ -53,12 +61,17 @@ struct BLEListState {
     }
     
     struct TableViewModel {
-        init(sections: [[CellConfig]] = []) {
+        init(sections: [[CellConfig]] = [], sectionTitles: [String] = []) {
             self.sections = sections
+            self.sectionTitles = sectionTitles
         }
         
         var numSections: Int {
             return sections.count
+        }
+        
+        func sectionTitle(at index: Int) -> String {
+            return sectionTitles[index]
         }
         
         func numRows(inSection sectionIndex: Int) -> Int {
@@ -81,5 +94,6 @@ struct BLEListState {
         
 
         private let sections: [[CellConfig]]
+        private let sectionTitles: [String]
     }
 }

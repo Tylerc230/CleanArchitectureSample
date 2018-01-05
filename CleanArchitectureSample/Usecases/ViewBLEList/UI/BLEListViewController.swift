@@ -61,6 +61,10 @@ extension BLEListViewController: UITableViewDataSource {
         return tableViewModel.numRows(inSection: section)
     }
     
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return tableViewModel.sectionTitle(at: section)
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let config = tableViewModel.cellConfig(at: indexPath)
         switch config {
