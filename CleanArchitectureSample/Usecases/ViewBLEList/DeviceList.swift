@@ -41,6 +41,15 @@ struct DeviceList {
                 return false
             }
         }
+        
+        var deviceIdentifiers: [UUID] {
+            switch self {
+            case .knownDevices(let entries):
+                return entries.map { $0.identifier }
+            case .discoveredDevices(let devices):
+                return devices.map { $0.identifier }
+            }
+        }
     }
     
     private var devices = [DeviceType]()

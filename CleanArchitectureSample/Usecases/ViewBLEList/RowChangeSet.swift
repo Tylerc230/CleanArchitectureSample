@@ -13,71 +13,75 @@ struct RowChangeSet {
     let reloadedRows: [IndexPath]
     let addedRows: [IndexPath]
     let deletedRows: [IndexPath]
-    let reloadedSections: IndexSet
     let addedSections: IndexSet
     let deletedSections: IndexSet
 }
 
-fileprivate typealias DeviceIndexPathMap = [UUID: IndexPath]
 fileprivate extension DeviceList {
-    var deviceToIndexPath: DeviceIndexPathMap {
+    var deviceToIndexPath: [UUID: IndexPath] {
         let idIndexPathPairs: [(UUID, IndexPath)] = self
             .enumerated()
-            .flatMap { (section, deviceType) -> [(UUID, IndexPath)] in
-                switch deviceType {
-                case .knownDevices(let devices):
-                    return devices
-                        .enumerated()
-                        .map { (row, device) in
-                            return (device.identifier, IndexPath(row: row, section: section))
-                    }
-                case .discoveredDevices(let devices):
-                    return devices
-                        .enumerated()
-                        .map { (row, device) in
-                            return (device.identifier, IndexPath(row: row, section: section))
-                    }
+            .flatMap { args -> [(UUID, IndexPath)] in
+                let (section, deviceType) = args
+                return deviceType.deviceIdentifiers
+                    .enumerated()
+                    .map { args in
+                        let (row, identifier) = args
+                        return (identifier, IndexPath(row: row, section: section))
                 }
         }
         return Dictionary(uniqueKeysWithValues: idIndexPathPairs)
+    }
+    
+    var deviceTypeToSectionIndex: [DeviceType: Int] {
+        let pairs = enumerated().map { ($0.1, $0.0)}
+        return Dictionary(uniqueKeysWithValues: pairs)
+    }
+}
+
+extension DeviceList.DeviceType: Hashable {
+    static func ==(lhs: DeviceList.DeviceType, rhs: DeviceList.DeviceType) -> Bool {
+        return lhs.sameType(as: rhs)
+    }
+    
+    var hashValue: Int {
+        switch self {
+        case .knownDevices:
+            return "A".hashValue
+        case .discoveredDevices:
+            return "B".hashValue
+        }
     }
 }
 
 struct RowChangeSetComputation {
     private let newDeviceList: DeviceList
     private let oldDeviceList: DeviceList
-    private let newDeviceMap: DeviceIndexPathMap
-    private let oldDeviceMap: DeviceIndexPathMap
+    private let newDeviceMap: [UUID: IndexPath]
+    private let oldDeviceMap: [UUID: IndexPath]
+    private let oldSectionMap: [DeviceList.DeviceType: Int]
+    private let newSectionMap: [DeviceList.DeviceType: Int]
     init(newDeviceList: DeviceList, oldDeviceList: DeviceList) {
         self.newDeviceList = newDeviceList
         self.oldDeviceList = oldDeviceList
         self.newDeviceMap = newDeviceList.deviceToIndexPath
         self.oldDeviceMap = oldDeviceList.deviceToIndexPath
+        self.newSectionMap = newDeviceList.deviceTypeToSectionIndex
+        self.oldSectionMap = oldDeviceList.deviceTypeToSectionIndex
     }
     
     var changeSet: RowChangeSet {
         let addedSections = sectionsAdded()
-        let devicesInNewSection = addedSections.flatMap { section in
-            return self.newDeviceMap.filter { (_, indexPath) -> Bool in
-                return indexPath.section == section
-                }
-                .map { (uuid, _) in
-                    return uuid
-            }
-        }
-        let inserted = insertedDevices().union(devicesInNewSection)
+        let indexPathsInNewSections = devicesAdded(to: addedSections)
+        let inserted = insertedDevices() + indexPathsInNewSections
         let deletedSections = sectionsDeleted()
         let deleted = deletedDevices()
         let modified = modifiedDevices()
         //Need to add the newly inserted rows plus the new positions of the rows which moved sections (converting a bleDevice to a device entry or vice versa)
-        let insertedIndexPaths = inserted
-            .flatMap { newDeviceMap[$0] }
-        let deletedIndexPaths = deleted.flatMap { oldDeviceMap[$0] }
-        let reloadedIndexPaths = modified.flatMap { oldDeviceMap[$0] }//Reloads happen before inserts so we use the old device map
-        return RowChangeSet(reloadedRows: reloadedIndexPaths, addedRows: insertedIndexPaths, deletedRows: deletedIndexPaths, reloadedSections:[], addedSections: IndexSet(addedSections), deletedSections: deletedSections)
+        return RowChangeSet(reloadedRows: modified, addedRows: inserted, deletedRows: deleted, addedSections: addedSections, deletedSections: deletedSections)
     }
     
-    private func modifiedDevices() -> Set<UUID> {
+    private func modifiedDevices() -> [IndexPath] {
         let currentDevices = Set(newDeviceMap.keys)
         let oldDevices = Set(oldDeviceMap.keys)
         let preexistingDevices = currentDevices.intersection(oldDevices)
@@ -98,67 +102,77 @@ struct RowChangeSetComputation {
             default://Device moved sections
                 return false
             }
+            }
+            .flatMap {
+                oldDeviceMap[$0]
         }
     }
     
-    private func insertedDevices() -> Set<UUID> {
-        let devicesAddedToSections = newDeviceList.flatMap { (deviceType) -> Set<UUID> in
-            guard let oldDeviceType = oldDeviceList.first (where:{ deviceType.sameType(as: $0)}) else {
-                return []
+    private func insertedDevices() -> [IndexPath] {
+        return preexistingSections
+            .flatMap { preexistingSection -> Set<UUID> in
+                guard
+                    let newSectionIndex = newSectionMap[preexistingSection],
+                    let oldSectionIndex = oldSectionMap[preexistingSection]
+                    else {
+                        return []
+                }
+                let newSection = newDeviceList.devices(at: newSectionIndex)
+                let oldSection = oldDeviceList.devices(at: oldSectionIndex)
+                return Set(newSection.deviceIdentifiers).subtracting(oldSection.deviceIdentifiers)
             }
-            switch (deviceType, oldDeviceType) {
-            case (.knownDevices(let newDevicesInSection), .knownDevices(let oldDevicesInSection)):
-                return Set(newDevicesInSection.map{$0.identifier}).subtracting(Set(oldDevicesInSection.map {$0.identifier}))
-            case (.discoveredDevices(let newDevicesInSection), .discoveredDevices(let oldDevicesInSection)):
-                return Set(newDevicesInSection.map{$0.identifier}).subtracting(Set(oldDevicesInSection.map{$0.identifier}))
-            default:
-                return []
-            }
+            .flatMap {
+                return newDeviceMap[$0]
         }
-        return Set(devicesAddedToSections)
     }
     
-    private func deletedDevices() -> Set<UUID> {
-        let devicesAddedToSections = newDeviceList.flatMap { (deviceType) -> Set<UUID> in
-            guard let oldDeviceType = oldDeviceList.first (where:{ deviceType.sameType(as: $0)}) else {
-                return []
+    private func deletedDevices() -> [IndexPath] {
+        return preexistingSections
+            .flatMap { preexistingSection -> Set<UUID> in
+                guard
+                    let newSectionIndex = newSectionMap[preexistingSection],
+                    let oldSectionIndex = oldSectionMap[preexistingSection]
+                    else {
+                        return []
+                }
+                let newSection = newDeviceList.devices(at: newSectionIndex)
+                let oldSection = oldDeviceList.devices(at: oldSectionIndex)
+                return Set(oldSection.deviceIdentifiers).subtracting(newSection.deviceIdentifiers)
             }
-            switch (deviceType, oldDeviceType) {
-            case (.knownDevices(let newDevicesInSection), .knownDevices(let oldDevicesInSection)):
-                return Set(oldDevicesInSection.map{$0.identifier}).subtracting(Set(newDevicesInSection.map {$0.identifier}))
-            case (.discoveredDevices(let newDevicesInSection), .discoveredDevices(let oldDevicesInSection)):
-                return Set(oldDevicesInSection.map{$0.identifier}).subtracting(Set(newDevicesInSection.map{$0.identifier}))
-            default:
-                return []
-            }
+            .flatMap {
+                return oldDeviceMap[$0]
         }
-        return Set(devicesAddedToSections)
+    }
+    
+    private func devicesAdded(to newSections: IndexSet) -> [IndexPath] {
+        let devicesInNewSections = newSections
+            .flatMap { newSectionIndex -> [UUID] in
+                let section = newDeviceList[newSectionIndex]
+                return section.deviceIdentifiers
+        }
+        return devicesInNewSections.flatMap { newDeviceMap[$0] }
     }
     
     private func sectionsAdded() -> IndexSet {
-        let sections = newDeviceList
-            .enumerated()
-            .filter {
-                let (_, deviceType) = $0
-                return !oldDeviceList.contains { deviceType.sameType(as: $0) }
-            }
-            .map { (offset, _) in
-                return offset
-        }
-        return IndexSet(sections)
+        let oldSections = Set(oldSectionMap.keys)
+        let newSections = Set(newSectionMap.keys)
+        let addedSections = newSections.subtracting(oldSections)
+        let addedSectionIndices = addedSections.flatMap { newSectionMap[$0] }
+        return IndexSet(addedSectionIndices)
     }
     
     private func sectionsDeleted() -> IndexSet {
-        let sections = oldDeviceList
-            .enumerated()
-            .filter {
-                let (_, deviceType) = $0
-                return !newDeviceList.contains { deviceType.sameType(as: $0) }
-            }
-            .map { (offset, _) in
-                return offset
-        }
-        return IndexSet(sections)
-        
+        let oldSections = Set(oldSectionMap.keys)
+        let newSections = Set(newSectionMap.keys)
+        let deletedSections = oldSections.subtracting(newSections)
+        let deletedSectionIndices = deletedSections.flatMap { oldSectionMap[$0] }
+        return IndexSet(deletedSectionIndices)
     }
+    
+    private var preexistingSections: Set<DeviceList.DeviceType> {
+        let newSections = Set(newSectionMap.keys)
+        let oldSections = Set(oldSectionMap.keys)
+        return newSections.intersection(oldSections)
+    }
+    
 }
