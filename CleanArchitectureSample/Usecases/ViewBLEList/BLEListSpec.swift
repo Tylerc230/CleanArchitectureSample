@@ -34,11 +34,8 @@ class BLEListSpec: QuickSpec {
                 expect(state.showNoDevicesCopy).to(beFalse())
             }
             
-            it("has 1 section") {
+            it("has 1 section and one row") {
                 expect(tableViewModel.numSections) == 1
-            }
-            
-            it("has one row in the section") {
                 expect(tableViewModel.numRows(inSection: 0)) == 1
             }
             
@@ -59,7 +56,7 @@ class BLEListSpec: QuickSpec {
             it("starts the 'create new device entry' flow on tapping a row") {
                 let transition = state.didSelectRow(at: IndexPath(row: 0, section: 0))
                 if case BLEListState.Transition.newDeviceEntry = transition {
-                    
+                    expect(true) == true
                 } else {
                     fail("should create new device entry when selecting a ble device")
                 }
@@ -145,10 +142,10 @@ class BLEListSpec: QuickSpec {
             it("adds another cell to the bottom when another unknown BLEDevice comes into range") {
                 let newDevice = bleDevice()
                 let (_, changeSet) = state.append(bleDevices: [newDevice])
-                expect(changeSet.addedRows).to(haveCount(1))
+                expect(changeSet.addedRows) == [IndexPath(row: 2, section: 1)]
             }
             
-            it("removes a cell from section 1 to adds a cell section 0 when the user adds a device entry to an unknown device, making it known") {
+            it("removes a cell from section 1 and adds a cell section 0 when the user adds a device entry to an unknown device, making it known") {
                 let newDeviceEntry = deviceEntry(withUUID: unknownInRangeUUID)
                 let (_, changeSet) = state.append(deviceEntries: [newDeviceEntry])
                 expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
@@ -170,6 +167,46 @@ class BLEListSpec: QuickSpec {
                 it("adds a section in the changeset when a new device is discovered") {
                     let (_, changeSet) = state.append(bleDevices: [bleDevice()])
                     expect(changeSet.addedSections) == [1]
+                    expect(changeSet.addedRows) == [IndexPath(row: 0, section: 1)]
+                }
+            }
+            
+            context("one discovered device") {
+                beforeEach {
+                    _ = state.append(bleDevices: [bleDevice()])
+                }
+                
+                it("adds insertes a section at the top with one row when user adds a device entry") {
+                    let (_, changeSet) = state.append(deviceEntries: [deviceEntry()])
+                    expect(changeSet.addedSections) == [0]
+                    expect(changeSet.addedRows) == [IndexPath(row:0, section: 0)]
+                }
+            }
+        }
+        
+        describe("device list sorting") {
+            context("3 in range known device") {
+                beforeEach {
+                    ["F", "D", "E"]
+                        .map {
+                            let identifier = UUID()
+                            let entry = DeviceEntry(identifier: identifier, name: $0, type: "Some type")
+                            let device = BLEDevice(identifier: identifier, type: "Some type")
+                            return (entry, device)
+                        }
+                        .forEach { (entry, device) in
+                            _ = state.append(deviceEntries:[entry], bleDevices: [device])
+                    }
+                }
+                it("sorts the known devices based on their name") {
+                    let tableViewModel = state.tableViewModel
+                    let names = (0..<3)
+                        .map { tableViewModel.cellConfig(at: IndexPath(row: $0, section: 0)) }
+                        .flatMap {
+                            guard case .known(let name, _, _) = $0 else { return nil }
+                            return name
+                    }
+                    expect(names) == ["D", "E", "F"]
                 }
             }
         }

@@ -17,7 +17,6 @@ struct BLEListState {
     mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) -> (TableViewModel, RowChangeSet) {
         let oldDeviceList = deviceList
         deviceList.append(newDeviceEntries: deviceEntries, newBLEDevices: bleDevices)
-        let tableViewModel = buildTableModel()
         let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
         return (tableViewModel, changeSet)
     }
@@ -25,12 +24,11 @@ struct BLEListState {
     mutating func update(deviceEntries: [DeviceEntry]) -> (TableViewModel, RowChangeSet) {
         let oldDeviceList = deviceList
         deviceList.update(deviceEntries: deviceEntries)
-        let tableViewModel = buildTableModel()
         let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
         return (tableViewModel, changeSet)
     }
     
-    private mutating func buildTableModel() -> TableViewModel {
+    var tableViewModel: TableViewModel {
         let sections: [[TableViewModel.CellConfig]] = deviceList.map {
             switch $0 {
             case .knownDevices(let deviceEntries):
