@@ -79,13 +79,23 @@ struct DeviceList {
     private mutating func set(deviceEntries: [DeviceEntry], unknownDevices: [BLEDevice]) {
         devices.removeAll()
         if !deviceEntries.isEmpty {
-            let sorted = deviceEntries.sorted { $0.name < $1.name }
+            let sorted = sort(deviceEntries: deviceEntries)
             devices.append(.knownDevices(sorted))
         }
         
         if !unknownDevices.isEmpty {
             devices.append(.discoveredDevices(unknownDevices))
         }
+    }
+    
+    private func sort(deviceEntries: [DeviceEntry]) -> [DeviceEntry] {
+        let inRangeDevices = deviceEntries
+            .filter(self.isInRange)
+            .sorted { $0.name < $1.name }
+        let outOfRange = deviceEntries
+            .filter { !self.isInRange($0) }
+            .sorted { $0.name < $1.name }
+        return inRangeDevices + outOfRange
     }
 }
 

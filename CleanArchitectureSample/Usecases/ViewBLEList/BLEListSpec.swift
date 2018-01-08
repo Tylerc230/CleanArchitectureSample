@@ -110,24 +110,23 @@ class BLEListSpec: QuickSpec {
                 expect(tableViewModel.numRows(inSection: 1)) == 2
             }
             
-            it("has a disabled row in section 0") {
-                let row = IndexPath(row: 0, section: 0)
-                let config = tableViewModel.cellConfig(at: row)
-                if case let .known(_, _, enabled) = config {
-                    expect(enabled) == false
-                } else {
-                    fail()
+            it("has 1 disabled row and 1 enabled row in section 0") {
+                var enabledRowCount = 0
+                var disabledRowCount = 0
+                (0..<tableViewModel.numRows(inSection: 0)).map {
+                    return tableViewModel.cellConfig(at: IndexPath(row: $0, section: 0))
+                    }
+                    .forEach { config in
+                        if case let .known(_, _, enabled) = config {
+                            if enabled {
+                                enabledRowCount += 1
+                            } else {
+                                disabledRowCount += 1
+                            }
+                        }
                 }
-            }
-            
-            it("has an enabled row in section 0") {
-                let row = IndexPath(row: 1, section: 0)
-                let config = tableViewModel.cellConfig(at: row)
-                if case let .known(_, _, enabled) = config {
-                    expect(enabled) == true
-                } else {
-                    fail()
-                }
+                expect(enabledRowCount) == 1
+                expect(disabledRowCount) == 1
             }
             
             it("transitions to update device entry when section 0 row tapped") {
@@ -148,8 +147,8 @@ class BLEListSpec: QuickSpec {
             it("removes a cell from section 1 and adds a cell section 0 when the user adds a device entry to an unknown device, making it known") {
                 let newDeviceEntry = deviceEntry(withUUID: unknownInRangeUUID)
                 let (_, changeSet) = state.append(deviceEntries: [newDeviceEntry])
-                expect(changeSet.addedRows) == [IndexPath(row: 2, section: 0)]
-                expect(changeSet.deletedRows) == [IndexPath(row:0, section: 1)]
+                expect(changeSet.addedRows[0].section) == 0
+                expect(changeSet.deletedRows[0].section) == 1
             }
             
             it("reloads the cell when a device entry is updated") {
@@ -199,14 +198,30 @@ class BLEListSpec: QuickSpec {
                     }
                 }
                 it("sorts the known devices based on their name") {
-                    let tableViewModel = state.tableViewModel
-                    let names = (0..<3)
+                    let names = knownDeviceNames(in: state.tableViewModel)
+                    expect(names) == ["D", "E", "F"]
+                }
+                context("3 out of range devices are added to the database") {
+                    beforeEach {
+                        ["B", "C", "A"]
+                            .map { DeviceEntry(identifier: UUID(), name: $0, type: "Some type") }
+                            .forEach {
+                                _ = state.append(deviceEntries: [$0])
+                        }
+                    }
+                    it("sorts the 3 out of range device last in the list") {
+                        let names = knownDeviceNames(in: state.tableViewModel)
+                        expect(names) == ["D", "E", "F", "A", "B", "C"]
+                    }
+                }
+                
+                func knownDeviceNames(in tableViewModel: BLEListState.TableViewModel) -> [String] {
+                    return (0..<tableViewModel.numRows(inSection: 0))
                         .map { tableViewModel.cellConfig(at: IndexPath(row: $0, section: 0)) }
                         .flatMap {
                             guard case .known(let name, _, _) = $0 else { return nil }
                             return name
                     }
-                    expect(names) == ["D", "E", "F"]
                 }
             }
         }
