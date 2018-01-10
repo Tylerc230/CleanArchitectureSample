@@ -28,7 +28,7 @@ class BLEListSceneCoordinator {
     weak var delegate: BLEListSceneCoordinatorDelegate?
 
     func viewDidLoad() {
-        ui?.update(tableViewModel: BLEListState.TableViewModel(), animateChangeSet: nil)
+        ui?.update(tableViewModel: state.tableViewModel, animateChangeSet: nil)
     }
     
     func indexPathSelected(_ indexPath: IndexPath) {

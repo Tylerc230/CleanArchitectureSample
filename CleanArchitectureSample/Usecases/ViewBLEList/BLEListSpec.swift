@@ -151,10 +151,20 @@ class BLEListSpec: QuickSpec {
                 expect(changeSet.deletedRows[0].section) == 1
             }
             
-            it("reloads the cell when a device entry is updated") {
-                let updatedDevice = DeviceEntry(identifier: knownNotInRangeUUID, name: "Updated name", type: "Fake device type")
+        }
+        
+        describe("rows moving after a rename") {
+            let renamedIdentifier = UUID()
+            beforeEach {
+                let renamedEntry = DeviceEntry(identifier: renamedIdentifier, name: "A", type: "")
+                let otherEntry = DeviceEntry(identifier: UUID(), name: "B", type: "")
+                _ = state.append(deviceEntries: [renamedEntry, otherEntry])
+            }
+            
+            fit("reloads and moves the cell when a device entry is updated") {
+                let updatedDevice = DeviceEntry(identifier: renamedIdentifier, name: "C", type: "")
                 let (_, changeSet) = state.update(deviceEntries: [updatedDevice])
-                expect(changeSet.reloadedRows) == [IndexPath(row: 0, section: 0)]
+                expect(changeSet.reloadedRows) == [IndexPath(row: 1, section: 0)]
             }
         }
         

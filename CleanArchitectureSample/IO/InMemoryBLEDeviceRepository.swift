@@ -9,6 +9,9 @@
 import Foundation
 class InMemoryBLEDeviceRepository {
     var devices: [DeviceEntry] = []
+    init(devices: [DeviceEntry]) {
+        self.devices = devices
+    }
 }
 
 extension InMemoryBLEDeviceRepository: BLEDeviceRepository {

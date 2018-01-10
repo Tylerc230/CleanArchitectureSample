@@ -13,6 +13,7 @@ struct RowChangeSet {
     let reloadedRows: [IndexPath]
     let addedRows: [IndexPath]
     let deletedRows: [IndexPath]
+    let movedRows: [(start: IndexPath, end: IndexPath)]
     let addedSections: IndexSet
     let deletedSections: IndexSet
 }
@@ -104,7 +105,7 @@ struct RowChangeSetComputation {
             }
             }
             .flatMap {
-                oldDeviceMap[$0]
+                newDeviceMap[$0]
         }
     }
     
