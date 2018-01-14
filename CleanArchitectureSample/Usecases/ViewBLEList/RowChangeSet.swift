@@ -13,9 +13,13 @@ struct RowChangeSet {
     let reloadedRows: [IndexPath]
     let addedRows: [IndexPath]
     let deletedRows: [IndexPath]
-    let movedRows: [(start: IndexPath, end: IndexPath)]
+    let movedRows: [Move]
     let addedSections: IndexSet
     let deletedSections: IndexSet
+    struct Move {
+        let start: IndexPath
+        let end: IndexPath
+    }
 }
 
 fileprivate extension DeviceList {
@@ -78,11 +82,13 @@ struct RowChangeSetComputation {
         let deletedSections = sectionsDeleted()
         let deleted = deletedDevices()
         let modified = modifiedDevices()
+        let modifiedIndexPaths = modified.flatMap { newDeviceMap[$0] }
+        let movedRows = movedDevices(modified: modified)
         //Need to add the newly inserted rows plus the new positions of the rows which moved sections (converting a bleDevice to a device entry or vice versa)
-        return RowChangeSet(reloadedRows: modified, addedRows: inserted, deletedRows: deleted, addedSections: addedSections, deletedSections: deletedSections)
+        return RowChangeSet(reloadedRows: modifiedIndexPaths, addedRows: inserted, deletedRows: deleted, movedRows: movedRows, addedSections: addedSections, deletedSections: deletedSections)
     }
     
-    private func modifiedDevices() -> [IndexPath] {
+    private func modifiedDevices() -> [UUID] {
         let currentDevices = Set(newDeviceMap.keys)
         let oldDevices = Set(oldDeviceMap.keys)
         let preexistingDevices = currentDevices.intersection(oldDevices)
@@ -103,9 +109,31 @@ struct RowChangeSetComputation {
             default://Device moved sections
                 return false
             }
+        }
+    }
+    
+    private func movedDevices(modified: [UUID]) -> [RowChangeSet.Move] {
+        let currentDevices = Set(newDeviceMap.keys)
+        let oldDevices = Set(oldDeviceMap.keys)
+        let preexistingDevices = currentDevices.intersection(oldDevices)
+        let oldPreexistingOrder = oldDeviceList
+            .flatMap { $0.deviceIdentifiers }
+            .filter (preexistingDevices.contains)
+        let newPreexistingOrder = newDeviceList
+            .flatMap { $0.deviceIdentifiers }
+            .filter(preexistingDevices.contains)
+        return zip(oldPreexistingOrder, newPreexistingOrder)
+            .filter { (oldDevice, newDevice) in
+                return oldDevice != newDevice && modified.contains(newDevice)
             }
-            .flatMap {
-                newDeviceMap[$0]
+            .flatMap { (_, newDevice) in
+                guard
+                    let oldDeviceIndex = oldDeviceMap[newDevice],
+                    let newDeviceIndex = newDeviceMap[newDevice]
+                    else {
+                        return nil
+                }
+                return RowChangeSet.Move(start: oldDeviceIndex, end: newDeviceIndex)
         }
     }
     

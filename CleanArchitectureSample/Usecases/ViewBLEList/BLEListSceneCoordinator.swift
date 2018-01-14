@@ -43,12 +43,16 @@ class BLEListSceneCoordinator {
     }
     
     func didCreate(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.append(deviceEntries: [device])
+        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+            state.append(deviceEntries: [device])
+        }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
     func didUpdate(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.update(deviceEntries: [device])
+        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+            state.update(deviceEntries: [device])
+        }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
@@ -64,7 +68,9 @@ class BLEListSceneCoordinator {
 
 extension BLEListSceneCoordinator: BLEDeviceManagerObserver {
     func didDiscover(device: BLEDevice) {
-        let (tableViewModel, changeSet) = state.append(bleDevices: [device])
+        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+            state.append(bleDevices: [device])
+        }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
 }

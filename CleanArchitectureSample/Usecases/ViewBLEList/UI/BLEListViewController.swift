@@ -30,9 +30,8 @@ class BLEListViewController: UIViewController {
             tableView.insertSections(changeSet.addedSections, with: .fade)
             tableView.deleteSections(changeSet.deletedSections, with: .fade)
             changeSet.movedRows
-                .forEach { change in
-                    let (start, end) = change
-                    self.tableView.moveRow(at: start, to: end)
+                .forEach { move in
+                    self.tableView.moveRow(at: move.start, to: move.end)
             }
         }, completion: { _ in
             self.tableView.reloadRows(at: changeSet.reloadedRows, with: .fade)

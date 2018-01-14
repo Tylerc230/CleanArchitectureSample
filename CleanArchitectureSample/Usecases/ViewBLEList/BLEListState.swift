@@ -14,16 +14,21 @@ struct BLEListState {
         }
     }
     
-    mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) -> (TableViewModel, RowChangeSet) {
-        let oldDeviceList = deviceList
+    mutating func append(deviceEntries: [DeviceEntry] = [], bleDevices: [BLEDevice] = []) {
         deviceList.append(newDeviceEntries: deviceEntries, newBLEDevices: bleDevices)
-        let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
-        return (tableViewModel, changeSet)
     }
     
-    mutating func update(deviceEntries: [DeviceEntry]) -> (TableViewModel, RowChangeSet) {
-        let oldDeviceList = deviceList
+    mutating func remove(deviceEntries: [DeviceEntry]) {
+        deviceList.remove(deviceEntries: deviceEntries)
+    }
+    
+    mutating func update(deviceEntries: [DeviceEntry]) {
         deviceList.update(deviceEntries: deviceEntries)
+    }
+    
+    mutating func tableViewAndChangeSet(for updates: (inout BLEListState) -> ()) -> (TableViewModel, RowChangeSet) {
+        let oldDeviceList = deviceList
+        updates(&self)
         let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
         return (tableViewModel, changeSet)
     }

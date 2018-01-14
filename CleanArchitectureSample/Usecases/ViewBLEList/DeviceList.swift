@@ -21,6 +21,13 @@ struct DeviceList {
         set(deviceEntries: allDeviceEntries, unknownDevices: newUnknownDevices)
     }
     
+    mutating func remove(deviceEntries: [DeviceEntry]) {
+        let newDeviceEntries = self.deviceEntries.filter {
+            return !deviceEntries.contains($0)
+        }
+        set(deviceEntries: newDeviceEntries, unknownDevices: [])
+    }
+    
     mutating func update(deviceEntries updatedDeviceEntries: [DeviceEntry]) {
         let allDeviceEntries = deviceEntries.map { (entry: DeviceEntry) -> DeviceEntry in
             guard let updatedEntry = updatedDeviceEntries.first(where: {entry.sameDevice(as: $0) }) else {
