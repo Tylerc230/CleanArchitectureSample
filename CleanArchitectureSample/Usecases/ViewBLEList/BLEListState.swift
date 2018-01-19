@@ -22,6 +22,10 @@ struct BLEListState {
         deviceList.remove(deviceEntries: deviceEntries)
     }
     
+    mutating func remove(bleDevices: [BLEDevice]) {
+        deviceList.remove(bleDevices: bleDevices)
+    }
+    
     mutating func update(deviceEntries: [DeviceEntry]) {
         deviceList.update(deviceEntries: deviceEntries)
     }

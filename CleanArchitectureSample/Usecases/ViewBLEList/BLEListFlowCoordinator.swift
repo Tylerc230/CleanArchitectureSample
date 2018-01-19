@@ -70,6 +70,10 @@ extension  BLEListFlowCoordinator: BLEEditSceneDelegate {
             self?.bleListScene.didUpdate(device: device)
         }
     }
+    
+    func didDelete(device: DeviceEntry) {
+        self.bleListScene.didRemove(device: device)
+    }
 
     func didCancel() {
         nav.popViewController(animated: true)

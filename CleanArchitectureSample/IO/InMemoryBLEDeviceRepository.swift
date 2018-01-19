@@ -26,4 +26,11 @@ extension InMemoryBLEDeviceRepository: BLEDeviceRepository {
     func update(deviceEntry: DeviceEntry) {
         
     }
+    
+    func remove(deviceEntry: DeviceEntry) {
+        guard let index = devices.index(of: deviceEntry) else {
+            return
+        }
+        devices.remove(at: index)
+    }
 }

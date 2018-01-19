@@ -56,6 +56,13 @@ class BLEListSceneCoordinator {
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
+    func didRemove(device: DeviceEntry) {
+        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+            state.remove(deviceEntries: [device])
+        }
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
+    }
+    
     private func setInitialState() {
         _ = state.append(deviceEntries: deviceRepository.fetchAllDevices())
     }

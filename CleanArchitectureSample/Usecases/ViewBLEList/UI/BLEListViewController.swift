@@ -24,18 +24,21 @@ class BLEListViewController: UIViewController {
     }
     
     private func animateTableUpdate(with changeSet: RowChangeSet) {
-        tableView.performBatchUpdates({
-            tableView.insertRows(at: changeSet.addedRows, with: .fade)
-            tableView.deleteRows(at: changeSet.deletedRows, with: .fade)
-            tableView.insertSections(changeSet.addedSections, with: .fade)
-            tableView.deleteSections(changeSet.deletedSections, with: .fade)
-            changeSet.movedRows
-                .forEach { move in
-                    self.tableView.moveRow(at: move.start, to: move.end)
-            }
-        }, completion: { _ in
-            self.tableView.reloadRows(at: changeSet.reloadedRows, with: .fade)
-        })
+        let error = tryCatch {
+            self.tableView.performBatchUpdates({
+                self.tableView.insertRows(at: changeSet.addedRows, with: .fade)
+                self.tableView.deleteRows(at: changeSet.deletedRows, with: .fade)
+                self.tableView.insertSections(changeSet.addedSections, with: .fade)
+                self.tableView.deleteSections(changeSet.deletedSections, with: .fade)
+                changeSet.movedRows
+                    .forEach { move in
+                        self.tableView.moveRow(at: move.start, to: move.end)
+                }
+            }, completion: { _ in
+                self.tableView.reloadRows(at: changeSet.reloadedRows, with: .fade)
+            })
+        }
+        print(error)
     }
 }
 

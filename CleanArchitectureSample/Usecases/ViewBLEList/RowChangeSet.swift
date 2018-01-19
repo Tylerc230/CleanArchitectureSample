@@ -8,6 +8,14 @@
 
 import Foundation
 struct RowChangeSet {
+    init(reloadedRows: [IndexPath] = [], addedRows: [IndexPath] = [], deletedRows: [IndexPath] = [], movedRows: [Move] = [], addedSections: IndexSet = [], deletedSections: IndexSet = []) {
+        self.reloadedRows = reloadedRows
+        self.addedRows = addedRows
+        self.deletedRows = deletedRows
+        self.movedRows = movedRows
+        self.addedSections = addedSections
+        self.deletedSections = deletedSections
+    }
     //Deleting and reloading happen first (index paths refer to the original table view model)
     //Inserts take the previous deletes into account
     let reloadedRows: [IndexPath]

@@ -25,7 +25,18 @@ struct DeviceList {
         let newDeviceEntries = self.deviceEntries.filter {
             return !deviceEntries.contains($0)
         }
-        set(deviceEntries: newDeviceEntries, unknownDevices: [])
+        let `self` = self
+        let newBLEDevices = deviceEntries
+            .filter { self.isInRange($0) }
+            .map { BLEDevice(identifier: $0.identifier, type: $0.type) }
+        set(deviceEntries: newDeviceEntries, unknownDevices: unknownDevices + newBLEDevices)
+    }
+    
+    mutating func remove(bleDevices: [BLEDevice]) {
+        let newBLEDevices = self.unknownDevices.filter {
+            return !bleDevices.contains($0)
+        }
+        set(deviceEntries: self.deviceEntries, unknownDevices: newBLEDevices)
     }
     
     mutating func update(deviceEntries updatedDeviceEntries: [DeviceEntry]) {
