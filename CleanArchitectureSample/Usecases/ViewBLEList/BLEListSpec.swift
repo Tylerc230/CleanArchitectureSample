@@ -84,9 +84,8 @@ class BLEListSpec: QuickSpec {
                 let (_, changeSet) = state.tableViewAndChangeSet { state in
                     state.append(deviceEntries: [entry])
                 }
-                expect(changeSet.addedSections) == [0]
-                expect(changeSet.addedRows) == [IndexPath(row: 0, section: 0)]
-                expect(changeSet.deletedRows) == [IndexPath(row: 0, section: 0)]
+                let movedRow = move(from: (0, 0), to: (0, 0))
+                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: [0])
             }
         }
         
@@ -163,8 +162,8 @@ class BLEListSpec: QuickSpec {
                 let (_, changeSet) = state.tableViewAndChangeSet { state in
                     state.append(deviceEntries: [newDeviceEntry])
                 }
-                expect(changeSet.addedRows[0].section) == 0
-                expect(changeSet.deletedRows[0].section) == 1
+                let movedRow = move(from: (0, 1), to: (1, 0))
+                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 1, section: 0)], movedRows: [movedRow])
             }
             
         }
@@ -260,7 +259,7 @@ class BLEListSpec: QuickSpec {
                     expect(changeSet) == RowChangeSet(deletedSections: [0])
                 }
                 
-                fit("moves a row from device entries to ble devices when the corresponding entry is deleted") {
+                it("moves a row from device entries to ble devices when the corresponding entry is deleted") {
                     let entry = DeviceEntry(identifier: singleBLEDevice.identifier, name: "New entry", type: "")
                     state.append(deviceEntries: [entry])
                     let (_, changeSet) = state.tableViewAndChangeSet { state in
@@ -328,17 +327,14 @@ extension RowChangeSet: Equatable {
     }
 }
 
-extension RowChangeSet.Move: Equatable {
-    static func ==(lhs: RowChangeSet.Move, rhs: RowChangeSet.Move) -> Bool {
-        return lhs.start == rhs.start && lhs.end == rhs.end
-    }
-}
-
-
 func deviceEntry(withUUID uuid: UUID = UUID()) -> DeviceEntry {
     return DeviceEntry(identifier: uuid, name: "Fake Device", type: "Fake Device Type")
 }
 
 func bleDevice(withUUID uuid: UUID = UUID()) -> BLEDevice {
     return BLEDevice(identifier: uuid, type: "Fake Device Type")
+}
+
+func move(from start: (Int, Int), to end: (Int, Int)) -> RowChangeSet.Move {
+    return RowChangeSet.Move(start: IndexPath(row: start.0, section: start.1), end: IndexPath(row: end.0, section: end.1))
 }
