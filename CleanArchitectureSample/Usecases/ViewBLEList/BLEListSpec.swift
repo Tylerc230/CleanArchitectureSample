@@ -71,6 +71,20 @@ class BLEListSpec: QuickSpec {
             }
         }
         
+        describe("one known device") {
+            let device = DeviceEntry(identifier: UUID(), name: "A", type: "")
+            beforeEach {
+                state.append(deviceEntries: [device])
+            }
+            it("is reloaded when the name changes even though it doesn't move") {
+                let device = DeviceEntry(identifier: device.identifier, name: "B", type: "")
+                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                    state.update(deviceEntries: [device])
+                }
+                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 0, section: 0)])
+            }
+        }
+        
         describe("two ble devices in range") {
             let unknownUUID = UUID()
             beforeEach {
