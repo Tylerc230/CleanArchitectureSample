@@ -33,142 +33,91 @@ struct RowAnimations {
     }
 }
 
-fileprivate extension DeviceList {
-    var deviceToIndexPath: [UUID: IndexPath] {
-        let idIndexPathPairs: [(UUID, IndexPath)] = self
-            .enumerated()
-            .flatMap { args -> [(UUID, IndexPath)] in
-                let (section, deviceType) = args
-                return deviceType.deviceIdentifiers
-                    .enumerated()
-                    .map { args in
-                        let (row, identifier) = args
-                        return (identifier, IndexPath(row: row, section: section))
-                }
-        }
-        return Dictionary(uniqueKeysWithValues: idIndexPathPairs)
+struct DeviceBatchChange {
+    var entriesAdded: [DeviceEntry] = []
+    var entriesRemoved: [DeviceEntry] = []
+    var entriesModified: [DeviceEntry] = []
+    var bleDevicesMovedIntoRange: [BLEDevice] = []
+    var bleDevicesMovedOutOfRange: [BLEDevice] = []
+    mutating func add(entries: [DeviceEntry]) {
+        entriesAdded.append(contentsOf: entries)
     }
     
-    var deviceTypeToSectionIndex: [DeviceType: Int] {
-        let pairs = enumerated().map { ($0.1, $0.0)}
-        return Dictionary(uniqueKeysWithValues: pairs)
+    mutating func remove(entries: [DeviceEntry]) {
+        entriesRemoved.append(contentsOf: entries)
+    }
+    
+    mutating func modify(entries: [DeviceEntry]) {
+        entriesModified.append(contentsOf: entries)
+    }
+    
+    mutating func bleDevices(movedInRange devices: [BLEDevice]) {
+        bleDevicesMovedIntoRange.append(contentsOf: devices)
+    }
+    
+    mutating func bleDevices(movedOutOfRange devices: [BLEDevice]) {
+        bleDevicesMovedOutOfRange.append(contentsOf: devices)
     }
 }
 
-extension DeviceList.DeviceType: Hashable {
-    static func ==(lhs: DeviceList.DeviceType, rhs: DeviceList.DeviceType) -> Bool {
-        return lhs.sameType(as: rhs)
-    }
-    
-    var hashValue: Int {
-        switch self {
-        case .knownDevices:
-            return "A".hashValue
-        case .discoveredDevices:
-            return "B".hashValue
-        }
-    }
-}
-
-//TODO: rename to RowChangeSetFactory
-struct RowChangeSetComputation {
-    private let newDeviceList: DeviceList
-    private let oldDeviceList: DeviceList
-    private let newDeviceMap: [UUID: IndexPath]
-    private let oldDeviceMap: [UUID: IndexPath]
-    private let oldSectionMap: [DeviceList.DeviceType: Int]
-    private let newSectionMap: [DeviceList.DeviceType: Int]
-    init(newDeviceList: DeviceList, oldDeviceList: DeviceList) {
+struct DeviceListFactory {
+    let newDeviceList: DeviceList
+    let rowAnimations: RowAnimations
+    init(oldDeviceList: DeviceList, changes: DeviceBatchChange) {
+        let (newDeviceList, rowAnimations) = DeviceListFactory.buildNewDeviceList(from: oldDeviceList, with: changes)
         self.newDeviceList = newDeviceList
-        self.oldDeviceList = oldDeviceList
-        self.newDeviceMap = newDeviceList.deviceToIndexPath
-        self.oldDeviceMap = oldDeviceList.deviceToIndexPath
-        self.newSectionMap = newDeviceList.deviceTypeToSectionIndex
-        self.oldSectionMap = oldDeviceList.deviceTypeToSectionIndex
+        self.rowAnimations = rowAnimations
     }
     
-    var changeSet: RowAnimations {
-        let addedSections = sectionsAdded()
-        let inserted = insertedDevices()
-        let deletedSections = sectionsDeleted()
-        let deleted = deletedDevices()
-            .filter { !deletedSections.contains($0.section) }
-        let movedRows = movedDevices()
-        let modified = movedRows.map { $0.end }
-        //Need to add the newly inserted rows plus the new positions of the rows which moved sections (converting a bleDevice to a device entry or vice versa)
-        return RowAnimations(reloadedRows: modified, addedRows: inserted, deletedRows: deleted, movedRows: movedRows, addedSections: addedSections, deletedSections: deletedSections)
-    }
-    
-    private func movedDevices() -> [RowAnimations.Move] {
-        let currentDevices = Set(newDeviceMap.keys)
-        let oldDevices = Set(oldDeviceMap.keys)
-        let preexistingDevices = currentDevices.intersection(oldDevices)
-        return preexistingDevices.filter{ identifier in
-            guard
-                let oldDeviceIndexPath = oldDeviceMap[identifier],
-                let newDeviceIndexPath = newDeviceMap[identifier]
-                else {
-                    return false
+    private static func buildNewDeviceList(from oldDeviceList: DeviceList, with changes: DeviceBatchChange) -> (DeviceList, RowAnimations){
+        var oldDeviceEntries: [DeviceEntry] = []
+        var oldBLEDevices: [BLEDevice] = []
+        var insertedSections: IndexSet = []
+        for section in oldDeviceList {
+            switch section {
+            case .knownDevices(let deviceEntries):
+                oldDeviceEntries = deviceEntries
+            case .discoveredDevices(let bleDevices):
+                oldBLEDevices = bleDevices
             }
-            let oldDeviceType = oldDeviceList.devices(at: oldDeviceIndexPath.section)
-            let newDeviceType = newDeviceList.devices(at: newDeviceIndexPath.section)
-            let preexistingOldDevices = oldDeviceType.deviceIdentifiers.filter(preexistingDevices.contains)
-            let preexistingNewDevices = newDeviceType.deviceIdentifiers.filter(preexistingDevices.contains)
-            switch (oldDeviceType, newDeviceType) {
-            case (.knownDevices(let oldDevices), .knownDevices(let newDevices)):
-                let oldDevice = oldDevices[oldDeviceIndexPath.row]
-                let newDevice = newDevices[newDeviceIndexPath.row]
-                let deviceModified = oldDevice != newDevice
-                return preexistingOldDevices.index(of: identifier) != preexistingNewDevices.index(of: identifier) && deviceModified
-            case (.discoveredDevices(let oldDevices), .discoveredDevices(let newDevices)):
-                let oldDevice = oldDevices[oldDeviceIndexPath.row]
-                let newDevice = newDevices[newDeviceIndexPath.row]
-                let deviceModified = oldDevice != newDevice
-                return preexistingOldDevices.index(of: identifier) != preexistingNewDevices.index(of: identifier) && deviceModified
-            default://Device moved sections
-                return true
-            }
-            }
-            .flatMap { identifier -> RowAnimations.Move? in
-                guard
-                    let oldDeviceIndex = oldDeviceMap[identifier],
-                    let newDeviceIndex = newDeviceMap[identifier]
-                    else {
-                        return nil
-                }
-                return RowAnimations.Move(start: oldDeviceIndex, end: newDeviceIndex)
         }
+        
+        let newDeviceEntries = oldDeviceEntries
+            .appending(contentsOf: changes.entriesAdded)
+            .filter {
+                return !changes.entriesRemoved.contains($0)
+        }
+        var sections: [DeviceList.DeviceSection] = []
+        if !newDeviceEntries.isEmpty {
+            if oldDeviceEntries.isEmpty {
+                insertedSections.insert(sections.count)
+            }
+            sections.append(.knownDevices(newDeviceEntries))
+        }
+        
+        let newBLEDevices = oldBLEDevices
+            .appending(contentsOf: changes.bleDevicesMovedIntoRange)
+            .filter {
+                return !changes.bleDevicesMovedOutOfRange.contains($0)
+            }
+            .filter {
+                return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
+        }
+        if !newBLEDevices.isEmpty {
+            if oldBLEDevices.isEmpty {
+                insertedSections.insert(sections.count)
+            }
+            sections.append(.discoveredDevices(newBLEDevices))
+        }
+        return (DeviceList(), RowAnimations())
     }
     
-    private func insertedDevices() -> [IndexPath] {
-        let newDevices = newDeviceList.flatMap { $0.deviceIdentifiers }
-        let oldDevices = oldDeviceList.flatMap { $0.deviceIdentifiers }
-        return Set(newDevices)
-            .subtracting(oldDevices)
-            .flatMap { newDeviceMap[$0] }
-    }
-    
-    private func deletedDevices() -> [IndexPath] {
-        let newDevices = newDeviceList.flatMap { $0.deviceIdentifiers }
-        let oldDevices = oldDeviceList.flatMap { $0.deviceIdentifiers }
-        return Set(oldDevices)
-            .subtracting(newDevices)
-            .flatMap { oldDeviceMap[$0] }
-    }
-    
-    private func sectionsAdded() -> IndexSet {
-        let oldSections = Set(oldSectionMap.keys)
-        let newSections = Set(newSectionMap.keys)
-        let addedSections = newSections.subtracting(oldSections)
-        let addedSectionIndices = addedSections.flatMap { newSectionMap[$0] }
-        return IndexSet(addedSectionIndices)
-    }
-    
-    private func sectionsDeleted() -> IndexSet {
-        let oldSections = Set(oldSectionMap.keys)
-        let newSections = Set(newSectionMap.keys)
-        let deletedSections = oldSections.subtracting(newSections)
-        let deletedSectionIndices = deletedSections.flatMap { oldSectionMap[$0] }
-        return IndexSet(deletedSectionIndices)
+}
+
+extension Array {
+    func appending(contentsOf array: [Element]) -> Array<Element> {
+        var new = self
+        new.append(contentsOf: array)
+        return new
     }
 }
