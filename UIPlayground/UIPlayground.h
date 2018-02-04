@@ -15,5 +15,5 @@ FOUNDATION_EXPORT double UIPlaygroundVersionNumber;
 FOUNDATION_EXPORT const unsigned char UIPlaygroundVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <UIPlayground/PublicHeader.h>
-
+NSString *tryCatch( void(^tryBlock)() );
 

@@ -38,7 +38,7 @@ class BLEListViewController: UIViewController {
                 self.tableView.reloadRows(at: changeSet.reloadedRows, with: .fade)
             })
         }
-        print(error)
+        print("CS \(changeSet) error \(error)")
     }
 }
 

@@ -17,6 +17,8 @@
 		2F8C90501FFE9BC000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
 		2F8C90511FFE9BC000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
 		2F8C90521FFE9D3000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
+		2F90F4882005F7CC00DE5B2A /* CatchException.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F90F4862005F7CB00DE5B2A /* CatchException.m */; };
+		2F90F4892005F7CC00DE5B2A /* CatchException.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F90F4862005F7CB00DE5B2A /* CatchException.m */; };
 		2FA5E7061FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA5E7071FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
 		2FA920661FC3FFB2007312B7 /* BLEListSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA920641FC3FFB2007312B7 /* BLEListSpec.swift */; };
@@ -87,6 +89,8 @@
 		2F1714211FFAB99C0059813F /* UINavigationController+Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Transitions.swift"; sourceTree = "<group>"; };
 		2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListFlowCoordinator.swift; sourceTree = "<group>"; };
 		2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowChangeSet.swift; sourceTree = "<group>"; };
+		2F90F4862005F7CB00DE5B2A /* CatchException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CatchException.m; sourceTree = "<group>"; };
+		2F90F4872005F7CC00DE5B2A /* CatchException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchException.h; sourceTree = "<group>"; };
 		2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListSceneCoordinator.swift; sourceTree = "<group>"; };
 		2FA920501FC3EFA9007312B7 /* CleanArchitectureCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CleanArchitectureCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FA9205B1FC3EFC1007312B7 /* CleanArchitectureCLITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CleanArchitectureCLITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -197,6 +201,8 @@
 		2F17141D1FFAB51C0059813F /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				2F90F4872005F7CC00DE5B2A /* CatchException.h */,
+				2F90F4862005F7CB00DE5B2A /* CatchException.m */,
 				2F1714211FFAB99C0059813F /* UINavigationController+Transitions.swift */,
 			);
 			path = Common;
@@ -434,10 +440,12 @@
 					};
 					2FC081C41FD11A0A0071ED9C = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 					};
 					2FC7012E1FC3DD3900368009 = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -598,6 +606,7 @@
 				2FB7A2781FD5123300C94ECD /* StubBLEDeviceManager.swift in Sources */,
 				2FB7A27B1FD5124C00C94ECD /* StubBLEDeviceRepository.swift in Sources */,
 				2FA5E7071FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */,
+				2F90F4892005F7CC00DE5B2A /* CatchException.m in Sources */,
 				2FC081D11FD11A260071ED9C /* BLEListState.swift in Sources */,
 				2FB5AED81FD78B9E0029EE3A /* BLEEditSceneCoordinator.swift in Sources */,
 			);
@@ -612,6 +621,7 @@
 				2FA9206F1FC5373C007312B7 /* BLEDevice.swift in Sources */,
 				2FC701331FC3DD3900368009 /* AppDelegate.swift in Sources */,
 				2FB5AED71FD78B9E0029EE3A /* BLEEditSceneCoordinator.swift in Sources */,
+				2F90F4882005F7CC00DE5B2A /* CatchException.m in Sources */,
 				2FB7A2711FD5064300C94ECD /* KnownDeviceCell.swift in Sources */,
 				2FB7A2771FD5123300C94ECD /* StubBLEDeviceManager.swift in Sources */,
 				2FA920681FC52D86007312B7 /* BLEListState.swift in Sources */,
@@ -716,6 +726,7 @@
 		2FC081CB1FD11A0A0071ED9C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -730,6 +741,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.13bit.UIPlayground;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -740,6 +753,7 @@
 		2FC081CC1FD11A0A0071ED9C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -754,6 +768,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.13bit.UIPlayground;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -872,11 +887,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = CleanArchitectureSample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.13bit.CleanArchitectureSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = CleanArchitectureSample/Common/CatchException.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -886,11 +904,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = CleanArchitectureSample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.13bit.CleanArchitectureSample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = CleanArchitectureSample/Common/CatchException.h;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
