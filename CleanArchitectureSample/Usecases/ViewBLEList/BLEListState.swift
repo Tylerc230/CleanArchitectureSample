@@ -30,9 +30,9 @@ struct BLEListState {
         deviceList.update(deviceEntries: deviceEntries)
     }
     
-    mutating func tableViewAndChangeSet(for updates: (inout BLEListState) -> ()) -> (TableViewModel, RowChangeSet) {
+    mutating func updateDevices(with changeBlock: (inout BLEListState) -> ()) -> (TableViewModel, RowAnimations) {
         let oldDeviceList = deviceList
-        updates(&self)
+        changeBlock(&self)
         let changeSet = RowChangeSetComputation(newDeviceList: deviceList, oldDeviceList: oldDeviceList).changeSet
         return (tableViewModel, changeSet)
     }

@@ -23,7 +23,7 @@ class BLEListViewController: UIViewController {
         sceneCoordinator?.viewDidLoad()
     }
     
-    private func animateTableUpdate(with changeSet: RowChangeSet) {
+    private func animateTableUpdate(with changeSet: RowAnimations) {
         let error = tryCatch {
             self.tableView.performBatchUpdates({
                 self.tableView.insertRows(at: changeSet.addedRows, with: .fade)
@@ -43,7 +43,7 @@ class BLEListViewController: UIViewController {
 }
 
 extension BLEListViewController: BLEListUI {
-    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet changeSet: RowChangeSet?) {
+    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet changeSet: RowAnimations?) {
         self.tableViewModel = tableViewModel
         guard let changeSet = changeSet else {
             tableView.reloadData()

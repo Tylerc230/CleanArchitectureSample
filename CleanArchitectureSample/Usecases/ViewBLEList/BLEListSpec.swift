@@ -14,7 +14,7 @@ class BLEListSpec: QuickSpec {
             
             it("has one section added when a device comes into range") {
                 let device = bleDevice()
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.append(bleDevices: [device])
                 }
                 expect(changeSet.addedRows) == [IndexPath(row: 0, section: 0)]
@@ -28,7 +28,7 @@ class BLEListSpec: QuickSpec {
             let unknownUUID = UUID()
             beforeEach {
                 let device = bleDevice(withUUID: unknownUUID)
-                let (tvm, _) = state.tableViewAndChangeSet { state in
+                let (tvm, _) = state.updateDevices { state in
                     state.append(bleDevices: [device])
                 }
                 tableViewModel = tvm
@@ -45,7 +45,7 @@ class BLEListSpec: QuickSpec {
             
             it("has two rows after another device discovered") {
                 let device = bleDevice()
-                let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+                let (tableViewModel, changeSet) = state.updateDevices { state in
                     state.append(bleDevices: [device])
                 }
                 expect(tableViewModel.numRows(inSection: 0)) == 2
@@ -54,7 +54,7 @@ class BLEListSpec: QuickSpec {
             
             it("deletes discovered devices section and adds known devices section in its place, after the user adds a corresponding entry") {
                 let newEntry = deviceEntry(withUUID: unknownUUID)
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.append(deviceEntries: [newEntry])
                 }
                 expect(changeSet.deletedSections) == IndexSet(integer: 0)
@@ -78,10 +78,10 @@ class BLEListSpec: QuickSpec {
             }
             it("is reloaded when the name changes even though it doesn't move") {
                 let device = DeviceEntry(identifier: device.identifier, name: "B", type: "")
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.update(deviceEntries: [device])
                 }
-                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 0, section: 0)])
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)])
             }
         }
         
@@ -95,11 +95,11 @@ class BLEListSpec: QuickSpec {
             
             it("adds a new section, removes a row and adds a row when one of the devices is added to the db") {
                 let entry = deviceEntry(withUUID: unknownUUID)
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.append(deviceEntries: [entry])
                 }
                 let movedRow = move(from: (0, 0), to: (0, 0))
-                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: [0])
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: [0])
             }
         }
         
@@ -117,7 +117,7 @@ class BLEListSpec: QuickSpec {
                 let knownDevice = bleDevice(withUUID: knownInRangeUUID)//This one will be in section 0 (bc it is known)
                 let unknownDevice1 = bleDevice(withUUID: unknownInRangeUUID)//This one will be at row: 0, sec: 1
                 let unknownDevice2 = bleDevice()//This one will be at row: 1, sec: 1
-                let (tvm, _) = state.tableViewAndChangeSet { state in
+                let (tvm, _) = state.updateDevices { state in
                     state.append(bleDevices: [knownDevice, unknownDevice1, unknownDevice2])
                 }
                 tableViewModel = tvm
@@ -165,7 +165,7 @@ class BLEListSpec: QuickSpec {
             
             it("adds another cell to the bottom when another unknown BLEDevice comes into range") {
                 let newDevice = bleDevice()
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.append(bleDevices: [newDevice])
                 }
                 expect(changeSet.addedRows) == [IndexPath(row: 2, section: 1)]
@@ -173,11 +173,11 @@ class BLEListSpec: QuickSpec {
             
             it("removes a cell from section 1 and adds a cell section 0 when the user adds a device entry to an unknown device, making it known") {
                 let newDeviceEntry = deviceEntry(withUUID: unknownInRangeUUID)
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.append(deviceEntries: [newDeviceEntry])
                 }
                 let movedRow = move(from: (0, 1), to: (1, 0))
-                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 1, section: 0)], movedRows: [movedRow])
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 1, section: 0)], movedRows: [movedRow])
             }
             
         }
@@ -193,11 +193,11 @@ class BLEListSpec: QuickSpec {
             it("reloads and moves the cell when a device entry is updated") {
                 let updatedDevice = DeviceEntry(identifier: renamedIdentifier, name: "C", type: "")
                 
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.update(deviceEntries: [updatedDevice])
                 }
                 expect(changeSet.reloadedRows) == [IndexPath(row: 1, section: 0)]
-                expect(changeSet.movedRows) == [RowChangeSet.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 1, section: 0))]
+                expect(changeSet.movedRows) == [RowAnimations.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 1, section: 0))]
             }
             
         }
@@ -212,20 +212,20 @@ class BLEListSpec: QuickSpec {
             }
             
             it("deletes a row after removing device") {
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.remove(deviceEntries: [deleted])
                 }
-                expect(changeSet) == RowChangeSet(deletedRows: [IndexPath(row: 0, section: 0)])
+                expect(changeSet) == RowAnimations(deletedRows: [IndexPath(row: 0, section: 0)])
             }
 
             it("deletes a row and moves a row after a delete and an update") {
                 let updatedDevice = DeviceEntry(identifier: renamed.identifier, name: "D", type: "")
-                let (_, changeSet) = state.tableViewAndChangeSet { state in
+                let (_, changeSet) = state.updateDevices { state in
                     state.update(deviceEntries: [updatedDevice])
                     state.remove(deviceEntries: [deleted])
                 }
-                let moved = RowChangeSet.Move(start: IndexPath(row: 1, section: 0), end: IndexPath(row:1, section: 0))
-                expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 1, section: 0)], deletedRows: [IndexPath(row: 0, section: 0)], movedRows: [moved])
+                let moved = RowAnimations.Move(start: IndexPath(row: 1, section: 0), end: IndexPath(row:1, section: 0))
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 1, section: 0)], deletedRows: [IndexPath(row: 0, section: 0)], movedRows: [moved])
             }
             
         }
@@ -238,17 +238,17 @@ class BLEListSpec: QuickSpec {
                 }
                 it("adds a section in the changeset when a new device is discovered") {
                     
-                    let (_, changeSet) = state.tableViewAndChangeSet { state in
+                    let (_, changeSet) = state.updateDevices { state in
                         state.append(bleDevices: [bleDevice()])
                     }
-                    expect(changeSet) == RowChangeSet(addedRows: [IndexPath(row: 0, section: 1)], addedSections: [1])
+                    expect(changeSet) == RowAnimations(addedRows: [IndexPath(row: 0, section: 1)], addedSections: [1])
                 }
                 
                 it("removes a section when device is removed") {
-                    let (_, changeSet) = state.tableViewAndChangeSet { state in
+                    let (_, changeSet) = state.updateDevices { state in
                         state.remove(deviceEntries: [singleDeviceEntry])
                     }
-                    expect(changeSet) == RowChangeSet(deletedSections: [0])
+                    expect(changeSet) == RowAnimations(deletedSections: [0])
                 }
             }
             
@@ -259,7 +259,7 @@ class BLEListSpec: QuickSpec {
                 }
                 
                 it("adds insertes a section at the top with one row when user adds a device entry") {
-                    let (_, changeSet) = state.tableViewAndChangeSet { state in
+                    let (_, changeSet) = state.updateDevices { state in
                         state.append(deviceEntries: [deviceEntry()])
                     }
                     expect(changeSet.addedSections) == [0]
@@ -267,20 +267,20 @@ class BLEListSpec: QuickSpec {
                 }
                 
                 it("removes a section when single ble device is deleted") {
-                    let (_, changeSet) = state.tableViewAndChangeSet { state in
+                    let (_, changeSet) = state.updateDevices { state in
                         state.remove(bleDevices: [singleBLEDevice])
                     }
-                    expect(changeSet) == RowChangeSet(deletedSections: [0])
+                    expect(changeSet) == RowAnimations(deletedSections: [0])
                 }
                 
                 it("moves a row from device entries to ble devices when the corresponding entry is deleted") {
                     let entry = DeviceEntry(identifier: singleBLEDevice.identifier, name: "New entry", type: "")
                     state.append(deviceEntries: [entry])
-                    let (_, changeSet) = state.tableViewAndChangeSet { state in
+                    let (_, changeSet) = state.updateDevices { state in
                         state.remove(deviceEntries: [entry])
                     }
-                    let move = RowChangeSet.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 0, section:0))
-                    expect(changeSet) == RowChangeSet(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [move], addedSections: [0], deletedSections: [0])
+                    let move = RowAnimations.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 0, section:0))
+                    expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [move], addedSections: [0], deletedSections: [0])
                 }
             }
         }
@@ -330,8 +330,8 @@ class BLEListSpec: QuickSpec {
     }
 }
 
-extension RowChangeSet: Equatable {
-    static func ==(lhs: RowChangeSet, rhs: RowChangeSet) -> Bool {
+extension RowAnimations: Equatable {
+    static func ==(lhs: RowAnimations, rhs: RowAnimations) -> Bool {
         return lhs.reloadedRows == rhs.reloadedRows &&
         lhs.addedRows == rhs.addedRows &&
         lhs.deletedRows == rhs.deletedRows &&
@@ -349,6 +349,6 @@ func bleDevice(withUUID uuid: UUID = UUID()) -> BLEDevice {
     return BLEDevice(identifier: uuid, type: "Fake Device Type")
 }
 
-func move(from start: (Int, Int), to end: (Int, Int)) -> RowChangeSet.Move {
-    return RowChangeSet.Move(start: IndexPath(row: start.0, section: start.1), end: IndexPath(row: end.0, section: end.1))
+func move(from start: (Int, Int), to end: (Int, Int)) -> RowAnimations.Move {
+    return RowAnimations.Move(start: IndexPath(row: start.0, section: start.1), end: IndexPath(row: end.0, section: end.1))
 }

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-struct RowChangeSet {
+struct RowAnimations {
     init(reloadedRows: [IndexPath] = [], addedRows: [IndexPath] = [], deletedRows: [IndexPath] = [], movedRows: [Move] = [], addedSections: IndexSet = [], deletedSections: IndexSet = []) {
         self.reloadedRows = reloadedRows
         self.addedRows = addedRows
@@ -27,7 +27,7 @@ struct RowChangeSet {
     struct Move: Equatable {
         let start: IndexPath
         let end: IndexPath
-        static func ==(lhs: RowChangeSet.Move, rhs: RowChangeSet.Move) -> Bool {
+        static func ==(lhs: RowAnimations.Move, rhs: RowAnimations.Move) -> Bool {
             return lhs.start == rhs.start && lhs.end == rhs.end
         }
     }
@@ -87,7 +87,7 @@ struct RowChangeSetComputation {
         self.oldSectionMap = oldDeviceList.deviceTypeToSectionIndex
     }
     
-    var changeSet: RowChangeSet {
+    var changeSet: RowAnimations {
         let addedSections = sectionsAdded()
         let inserted = insertedDevices()
         let deletedSections = sectionsDeleted()
@@ -96,10 +96,10 @@ struct RowChangeSetComputation {
         let movedRows = movedDevices()
         let modified = movedRows.map { $0.end }
         //Need to add the newly inserted rows plus the new positions of the rows which moved sections (converting a bleDevice to a device entry or vice versa)
-        return RowChangeSet(reloadedRows: modified, addedRows: inserted, deletedRows: deleted, movedRows: movedRows, addedSections: addedSections, deletedSections: deletedSections)
+        return RowAnimations(reloadedRows: modified, addedRows: inserted, deletedRows: deleted, movedRows: movedRows, addedSections: addedSections, deletedSections: deletedSections)
     }
     
-    private func movedDevices() -> [RowChangeSet.Move] {
+    private func movedDevices() -> [RowAnimations.Move] {
         let currentDevices = Set(newDeviceMap.keys)
         let oldDevices = Set(oldDeviceMap.keys)
         let preexistingDevices = currentDevices.intersection(oldDevices)
@@ -129,14 +129,14 @@ struct RowChangeSetComputation {
                 return true
             }
             }
-            .flatMap { identifier -> RowChangeSet.Move? in
+            .flatMap { identifier -> RowAnimations.Move? in
                 guard
                     let oldDeviceIndex = oldDeviceMap[identifier],
                     let newDeviceIndex = newDeviceMap[identifier]
                     else {
                         return nil
                 }
-                return RowChangeSet.Move(start: oldDeviceIndex, end: newDeviceIndex)
+                return RowAnimations.Move(start: oldDeviceIndex, end: newDeviceIndex)
         }
     }
     

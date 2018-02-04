@@ -8,7 +8,7 @@
 import Foundation
 
 protocol BLEListUI: class {
-    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet: RowChangeSet?)
+    func update(tableViewModel: BLEListState.TableViewModel, animateChangeSet: RowAnimations?)
 }
 
 protocol BLEListSceneCoordinatorDelegate: class {
@@ -43,21 +43,21 @@ class BLEListSceneCoordinator {
     }
     
     func didCreate(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+        let (tableViewModel, changeSet) = state.updateDevices { state in
             state.append(deviceEntries: [device])
         }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
     func didUpdate(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+        let (tableViewModel, changeSet) = state.updateDevices { state in
             state.update(deviceEntries: [device])
         }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }
     
     func didRemove(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+        let (tableViewModel, changeSet) = state.updateDevices { state in
             state.remove(deviceEntries: [device])
         }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
@@ -75,7 +75,7 @@ class BLEListSceneCoordinator {
 
 extension BLEListSceneCoordinator: BLEDeviceManagerObserver {
     func didDiscover(device: BLEDevice) {
-        let (tableViewModel, changeSet) = state.tableViewAndChangeSet { state in
+        let (tableViewModel, changeSet) = state.updateDevices { state in
             state.append(bleDevices: [device])
         }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
