@@ -72,7 +72,6 @@ struct DeviceListFactory {
     private static func buildNewDeviceList(from oldDeviceList: DeviceList, with changes: DeviceBatchChange) -> (DeviceList, RowAnimations){
         var oldDeviceEntries: [DeviceEntry] = []
         var oldBLEDevices: [BLEDevice] = []
-        var insertedSections: IndexSet = []
         for section in oldDeviceList {
             switch section {
             case .knownDevices(let deviceEntries):
@@ -87,6 +86,7 @@ struct DeviceListFactory {
             .filter {
                 return !changes.entriesRemoved.contains($0)
         }
+        var insertedSections: IndexSet = []
         var sections: [DeviceList.DeviceSection] = []
         if !newDeviceEntries.isEmpty {
             if oldDeviceEntries.isEmpty {
@@ -109,7 +109,14 @@ struct DeviceListFactory {
             }
             sections.append(.discoveredDevices(newBLEDevices))
         }
-        return (DeviceList(), RowAnimations())
+        //TODO: need to keep track of all ble devices in range somewhere
+        let newDeviceList = DeviceList(sections: sections, inRangeDevices: newBLEDevices)
+        let allNewDevicesIdentifiers = newDeviceList.allDeviceIdentifiers
+        let allOldDeviceIdentifiers = oldDeviceList.allDeviceIdentifiers
+        let addedDeviceIdentifiers = allNewDevicesIdentifiers.subtracting(allOldDeviceIdentifiers)
+        let insertedRows = addedDeviceIdentifiers.flatMap { newDeviceList.indexPath(for: $0) }
+        let rowAnimations = RowAnimations(addedRows: insertedRows, addedSections: insertedSections)
+        return (newDeviceList, rowAnimations)
     }
     
 }

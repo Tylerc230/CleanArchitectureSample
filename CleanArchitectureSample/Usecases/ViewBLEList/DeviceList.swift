@@ -17,8 +17,44 @@ struct DeviceList {
         return discoveredDeviceCache.contains(device.identifier)
     }
     
+    func indexPath(for identifier: UUID) -> IndexPath? {
+        return enumerated()
+            .flatMap { (sectionIndex, section) -> [IndexPath] in
+                switch section {
+                case .knownDevices(let devices):
+                    return devices
+                        .enumerated()
+                        .flatMap { args -> IndexPath? in
+                            let (deviceIndex, device) = args
+                            return device.identifier == identifier ? IndexPath(row: deviceIndex, section: sectionIndex) : nil
+                    }
+                    
+                case .discoveredDevices(let devices):
+                    return devices
+                        .enumerated()
+                        .flatMap { args -> IndexPath? in
+                            let (deviceIndex, device) = args
+                            return device.identifier == identifier ? IndexPath(row: deviceIndex, section: sectionIndex) : nil
+                    }
+                }
+            }
+            .first
+    }
+    
     enum DeviceSection {
         case knownDevices([DeviceEntry]), discoveredDevices([BLEDevice])
+    }
+    
+    var allDeviceIdentifiers: Set<UUID> {
+        let identifiers = flatMap { section -> [UUID] in
+            switch section {
+            case .knownDevices(let devices):
+                return devices.map { $0.identifier }
+            case .discoveredDevices(let devices):
+                return devices.map { $0.identifier }
+            }
+        }
+        return Set(identifiers)
     }
     
     private var sections = [DeviceSection]()

@@ -14,12 +14,10 @@ class BLEListSpec: QuickSpec {
             
             it("has one section added when a device comes into range") {
                 let device = bleDevice()
-                let (_, changeSet) = state.updateDevices { changes in
+                let (_, rowAnimations) = state.updateDevices { changes in
                     changes.bleDevices(movedInRange: [device])
                 }
-                expect(changeSet.addedRows) == [IndexPath(row: 0, section: 0)]
-                expect(changeSet.addedSections) == [0]
-                expect(changeSet.deletedSections) == []
+                expect(rowAnimations) == RowAnimations(addedRows: [IndexPath(row: 0, section: 0)], addedSections: [0])
             }
         }
         
