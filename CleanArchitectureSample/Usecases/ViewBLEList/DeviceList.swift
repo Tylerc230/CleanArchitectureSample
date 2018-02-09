@@ -4,9 +4,9 @@ struct DeviceList {
         return sections.isEmpty
     }
     
-    init(sections: [DeviceSection] = [], inRangeDevices: [BLEDevice] = []) {
+    init(sections: [DeviceSection] = [], inRangeDevices: Set<UUID> = []) {
         self.sections = sections
-        discoveredDeviceCache = Set(inRangeDevices.map { $0.identifier })
+        discoveredDevices = inRangeDevices
     }
     
     func devices(at index: Int) -> DeviceSection {
@@ -14,7 +14,7 @@ struct DeviceList {
     }
     
     func isInRange(_ device: DeviceEntry) -> Bool {
-        return discoveredDeviceCache.contains(device.identifier)
+        return discoveredDevices.contains(device.identifier)
     }
     
     func indexPath(for identifier: UUID) -> IndexPath? {
@@ -41,6 +41,20 @@ struct DeviceList {
             .first
     }
     
+    func index(for sectionToTest: DeviceSection) -> Int? {
+        return enumerated()
+            .flatMap { (sectionIndex, section) in
+                switch (section, sectionToTest) {
+                case (.knownDevices, .knownDevices), (.discoveredDevices, .discoveredDevices):
+                    return sectionIndex
+                default:
+                    return nil
+                    
+                }
+        }
+        .first
+    }
+    
     enum DeviceSection {
         case knownDevices([DeviceEntry]), discoveredDevices([BLEDevice])
     }
@@ -57,18 +71,9 @@ struct DeviceList {
         return Set(identifiers)
     }
     
-    private var sections = [DeviceSection]()
-    private var discoveredDeviceCache: Set<UUID> = []
+    private let sections: [DeviceSection]
+    let discoveredDevices: Set<UUID>
 
-    private func sort(deviceEntries: [DeviceEntry]) -> [DeviceEntry] {
-        let inRangeDevices = deviceEntries
-            .filter(self.isInRange)
-            .sorted { $0.name < $1.name }
-        let outOfRange = deviceEntries
-            .filter { !self.isInRange($0) }
-            .sorted { $0.name < $1.name }
-        return inRangeDevices + outOfRange
-    }
 }
 
 extension DeviceList: Collection {

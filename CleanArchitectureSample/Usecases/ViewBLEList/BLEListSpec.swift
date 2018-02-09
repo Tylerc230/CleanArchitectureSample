@@ -52,11 +52,11 @@ class BLEListSpec: QuickSpec {
             
             it("deletes discovered devices section and adds known devices section in its place, after the user adds a corresponding entry") {
                 let newEntry = deviceEntry(withUUID: unknownUUID)
-                let (_, changeSet) = state.updateDevices { changes in
+                let (_, rowAnimations) = state.updateDevices { changes in
                     changes.add(entries: [newEntry])
                 }
-                expect(changeSet.deletedSections) == IndexSet(integer: 0)
-                expect(changeSet.addedSections) == IndexSet(integer: 0)
+                let movedRow = move(from: (0, 0), to: (0, 0))
+                expect(rowAnimations) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: IndexSet(integer: 0), deletedSections: IndexSet(integer: 0))
             }
             
             it("starts the 'create new device entry' flow on tapping a row") {
@@ -142,8 +142,9 @@ class BLEListSpec: QuickSpec {
             it("has 1 disabled row and 1 enabled row in section 0") {
                 var enabledRowCount = 0
                 var disabledRowCount = 0
-                (0..<tableViewModel.numRows(inSection: 0)).map {
-                    return tableViewModel.cellConfig(at: IndexPath(row: $0, section: 0))
+                (0..<tableViewModel.numRows(inSection: 0))
+                    .map {
+                        return tableViewModel.cellConfig(at: IndexPath(row: $0, section: 0))
                     }
                     .forEach { config in
                         if case let .known(_, _, enabled) = config {
