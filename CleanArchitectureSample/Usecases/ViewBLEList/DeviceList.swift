@@ -4,6 +4,24 @@ struct DeviceList {
         return sections.isEmpty
     }
     
+    var deviceEntries: [DeviceEntry] {
+        for section in sections {
+            if case let .knownDevices(devices) = section {
+                return devices
+            }
+        }
+        return []
+    }
+    
+    var bleDevices: [BLEDevice] {
+        for section in sections {
+            if case let .discoveredDevices(devices) = section {
+                return devices
+            }
+        }
+        return []
+    }
+    
     init(sections: [DeviceSection] = [], inRangeDevices: Set<UUID> = []) {
         self.sections = sections
         discoveredDevices = inRangeDevices

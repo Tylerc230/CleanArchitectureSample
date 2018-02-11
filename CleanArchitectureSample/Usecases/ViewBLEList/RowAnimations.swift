@@ -72,42 +72,12 @@ struct DeviceListFactory {
     }
     
     func buildNewDeviceList() -> (DeviceList, RowAnimations){
-        var oldDeviceEntries: [DeviceEntry] = []
-        var oldBLEDevices: [BLEDevice] = []
-        for section in oldDeviceList {
-            switch section {
-            case .knownDevices(let deviceEntries):
-                oldDeviceEntries = deviceEntries
-            case .discoveredDevices(let bleDevices):
-                oldBLEDevices = bleDevices
-            }
-        }
+        let newDeviceList = deviceList
+        let oldDeviceEntries = oldDeviceList.deviceEntries
+        let oldBLEDevices = oldDeviceList.bleDevices
+        let newDeviceEntries = newDeviceList.deviceEntries
+        let newBLEDevices = newDeviceList.bleDevices
         
-        let newDeviceEntries = oldDeviceEntries
-            .appending(contentsOf: changes.entriesAdded)
-            .filter {
-                return !changes.entriesRemoved.contains($0)
-        }
-        var sections: [DeviceList.DeviceSection] = []
-        if !newDeviceEntries.isEmpty {
-            let sorted = sort(deviceEntries: newDeviceEntries)
-            sections.append(.knownDevices(sorted))
-        }
-        
-        let newBLEDevices = oldBLEDevices
-            .appending(contentsOf: changes.bleDevicesMovedIntoRange)
-            .filter {
-                return !changes.bleDevicesMovedOutOfRange.contains($0)
-            }
-            .filter {
-                return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
-        }
-        if !newBLEDevices.isEmpty {
-            sections.append(.discoveredDevices(newBLEDevices))
-        }
-        
-
-        let newDeviceList = DeviceList(sections: sections, inRangeDevices: discoveredDevices)
         //Calculate animations
         var insertedSections: IndexSet = []
         var removedSections: IndexSet = []
@@ -147,6 +117,35 @@ struct DeviceListFactory {
             + movedRows.map { $0.end }
         let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, movedRows: movedRows, addedSections: insertedSections, deletedSections: removedSections)
         return (newDeviceList, rowAnimations)
+    }
+    
+    var deviceList: DeviceList {
+        let oldDeviceEntries = oldDeviceList.deviceEntries
+        let oldBLEDevices = oldDeviceList.bleDevices
+        let newDeviceEntries = oldDeviceEntries
+            .appending(contentsOf: changes.entriesAdded)
+            .filter {
+                return !changes.entriesRemoved.contains($0)
+        }
+        var sections: [DeviceList.DeviceSection] = []
+        if !newDeviceEntries.isEmpty {
+            let sorted = sort(deviceEntries: newDeviceEntries)
+            sections.append(.knownDevices(sorted))
+        }
+        
+        let newBLEDevices = oldBLEDevices
+            .appending(contentsOf: changes.bleDevicesMovedIntoRange)
+            .filter {
+                return !changes.bleDevicesMovedOutOfRange.contains($0)
+            }
+            .filter {
+                return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
+        }
+        if !newBLEDevices.isEmpty {
+            sections.append(.discoveredDevices(newBLEDevices))
+        }
+        
+        return DeviceList(sections: sections, inRangeDevices: discoveredDevices)
     }
     
     func isInRange(_ device: DeviceEntry) -> Bool {

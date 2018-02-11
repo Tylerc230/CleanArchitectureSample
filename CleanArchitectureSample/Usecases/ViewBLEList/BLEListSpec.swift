@@ -197,14 +197,14 @@ class BLEListSpec: QuickSpec {
                 }
             }
             
-            it("reloads and moves the cell when a device entry is updated") {
+            fit("reloads and moves the cell when a device entry is updated") {
                 let updatedDevice = DeviceEntry(identifier: renamedIdentifier, name: "C", type: "")
                 
                 let (_, changeSet) = state.updateDevices { changes in
                     changes.modify(entries: [updatedDevice])
                 }
-                expect(changeSet.reloadedRows) == [IndexPath(row: 1, section: 0)]
-                expect(changeSet.movedRows) == [RowAnimations.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 1, section: 0))]
+                let moves = [RowAnimations.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 1, section: 0))]
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 1, section: 0)], movedRows: moves)
             }
             
         }
