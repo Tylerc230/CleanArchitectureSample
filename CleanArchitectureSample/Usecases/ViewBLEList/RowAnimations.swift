@@ -142,7 +142,14 @@ struct DeviceListFactory {
                 return newDeviceList.indexPath(for: $0.identifier)
             }
             + devicesWhichMovedSections.map { $0.end }
-        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, movedRows: devicesWhichMovedSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
+        let deletedRows = changes.entriesRemoved
+            .flatMap {
+                return oldDeviceList.indexPath(for: $0.identifier)
+            }
+            .filter {
+                return !removedSections.contains($0.section)
+        }
+        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, deletedRows: deletedRows, movedRows: devicesWhichMovedSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
         return (newDeviceList, rowAnimations)
     }
     
