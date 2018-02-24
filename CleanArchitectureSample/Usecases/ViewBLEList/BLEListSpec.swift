@@ -197,7 +197,7 @@ class BLEListSpec: QuickSpec {
                 }
             }
             
-            fit("reloads and moves the cell when a device entry is updated") {
+            it("reloads and moves the cell when a device entry is updated") {
                 let updatedDevice = DeviceEntry(identifier: renamedIdentifier, name: "C", type: "")
                 
                 let (_, changeSet) = state.updateDevices { changes in

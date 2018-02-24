@@ -97,7 +97,7 @@ struct DeviceListFactory {
         let allOldDeviceIdentifiers = oldDeviceList.allDeviceIdentifiers
         let addedDeviceIdentifiers = allNewDevicesIdentifiers.subtracting(allOldDeviceIdentifiers)
         let insertedRows = addedDeviceIdentifiers.flatMap { newDeviceList.indexPath(for: $0) }
-        let movedRows: [RowAnimations.Move] = changes.entriesAdded
+        let devicesWhichMovedSections: [RowAnimations.Move] = changes.entriesAdded
             .filter { newDeviceEntry  in
                 return oldBLEDevices.contains { $0.identifier == newDeviceEntry.identifier }
             }
@@ -110,12 +110,39 @@ struct DeviceListFactory {
                 }
                 return .init(start: oldIndexPath, end: newIndexPath)
         }
+        let persistantDeviceEntries = Set(newDeviceEntries).intersection(oldDeviceEntries)
+        let oldPositions = oldDeviceEntries.filter(persistantDeviceEntries.contains)
+        let newPositions = newDeviceEntries.filter(persistantDeviceEntries.contains)
+        let movedDeviceEntries = changes.entriesModified
+            .flatMap { modifiedEntry -> (DeviceEntry, Int, Int)? in
+                guard
+                    let oldIndex = oldPositions.index(of: modifiedEntry),
+                    let newIndex = newPositions.index(of: modifiedEntry)
+                    else {
+                        return nil
+                }
+                return (modifiedEntry, oldIndex, newIndex)
+            }
+            .filter { args in
+                let (_, oldIndex, newIndex) = args
+                return oldIndex != newIndex
+            }
+            .flatMap { args -> RowAnimations.Move? in
+                let (deviceEntry, _, _) = args
+                guard
+                    let oldIndexPath = oldDeviceList.indexPath(for: deviceEntry.identifier),
+                    let newIndexPath = newDeviceList.indexPath(for: deviceEntry.identifier)
+                    else {
+                        return nil
+                }
+                return RowAnimations.Move(start: oldIndexPath, end: newIndexPath)
+        }
         let reloadedRows = changes.entriesModified
             .flatMap {
                 return newDeviceList.indexPath(for: $0.identifier)
             }
-            + movedRows.map { $0.end }
-        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, movedRows: movedRows, addedSections: insertedSections, deletedSections: removedSections)
+            + devicesWhichMovedSections.map { $0.end }
+        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, movedRows: devicesWhichMovedSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
         return (newDeviceList, rowAnimations)
     }
     
@@ -123,10 +150,10 @@ struct DeviceListFactory {
         let oldDeviceEntries = oldDeviceList.deviceEntries
         let oldBLEDevices = oldDeviceList.bleDevices
         let newDeviceEntries = oldDeviceEntries
+            .filter { !changes.entriesModified.contains($0) }
+            .filter { !changes.entriesRemoved.contains($0) }
             .appending(contentsOf: changes.entriesAdded)
-            .filter {
-                return !changes.entriesRemoved.contains($0)
-        }
+            .appending(contentsOf: changes.entriesModified)
         var sections: [DeviceList.DeviceSection] = []
         if !newDeviceEntries.isEmpty {
             let sorted = sort(deviceEntries: newDeviceEntries)
