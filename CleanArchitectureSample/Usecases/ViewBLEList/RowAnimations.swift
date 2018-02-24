@@ -171,7 +171,10 @@ struct DeviceListFactory {
                 return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
         }
         if !newBLEDevices.isEmpty {
-            sections.append(.discoveredDevices(Array(newBLEDevices)))
+            let sorted = newBLEDevices.sorted {
+                return $0.discoveredTime < $1.discoveredTime
+            }
+            sections.append(.discoveredDevices(sorted))
         }
         
         return DeviceList(sections: sections, inRangeDevices: discoveredDevices)
