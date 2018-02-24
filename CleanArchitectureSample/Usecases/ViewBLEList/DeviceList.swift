@@ -22,7 +22,7 @@ struct DeviceList {
         return []
     }
     
-    init(sections: [DeviceSection] = [], inRangeDevices: Set<UUID> = []) {
+    init(sections: [DeviceSection] = [], inRangeDevices: Set<BLEDevice> = []) {
         self.sections = sections
         discoveredDevices = inRangeDevices
     }
@@ -32,7 +32,7 @@ struct DeviceList {
     }
     
     func isInRange(_ device: DeviceEntry) -> Bool {
-        return discoveredDevices.contains(device.identifier)
+        return discoveredDevices.contains { $0.identifier == device.identifier }
     }
     
     func indexPath(for identifier: UUID) -> IndexPath? {
@@ -90,7 +90,7 @@ struct DeviceList {
     }
     
     private let sections: [DeviceSection]
-    let discoveredDevices: Set<UUID>
+    let discoveredDevices: Set<BLEDevice>
 
 }
 

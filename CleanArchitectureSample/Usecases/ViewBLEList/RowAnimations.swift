@@ -63,7 +63,7 @@ struct DeviceBatchChange {
 struct DeviceListFactory {
     let oldDeviceList: DeviceList
     let changes: DeviceBatchChange
-    private let discoveredDevices: Set<UUID>
+    private let discoveredDevices: Set<BLEDevice>
     
     init(oldDeviceList: DeviceList, changes: DeviceBatchChange) {
         self.oldDeviceList = oldDeviceList
@@ -97,10 +97,8 @@ struct DeviceListFactory {
         let allOldDeviceIdentifiers = oldDeviceList.allDeviceIdentifiers
         let addedDeviceIdentifiers = allNewDevicesIdentifiers.subtracting(allOldDeviceIdentifiers)
         let insertedRows = addedDeviceIdentifiers.flatMap { newDeviceList.indexPath(for: $0) }
-        let devicesWhichMovedSections: [RowAnimations.Move] = changes.entriesAdded
-            .filter { newDeviceEntry  in
-                return oldBLEDevices.contains { $0.identifier == newDeviceEntry.identifier }
-            }
+        let devicesWhichMovedBetweenSections: [RowAnimations.Move] = (changes.entriesRemoved + changes.entriesAdded)
+            .filter(isInRange)
             .flatMap { deviceEntry in
                 guard
                     let newIndexPath = newDeviceList.indexPath(for: deviceEntry.identifier),
@@ -141,7 +139,9 @@ struct DeviceListFactory {
             .flatMap {
                 return newDeviceList.indexPath(for: $0.identifier)
             }
-            + devicesWhichMovedSections.map { $0.end }
+            + devicesWhichMovedBetweenSections.map { $0.end }
+        //Need to test for ble devices going out of range (row removed)
+        //Need to test for devices entries which aren't in range anymore (row reloaded)
         let deletedRows = changes.entriesRemoved
             .flatMap {
                 return oldDeviceList.indexPath(for: $0.identifier)
@@ -149,13 +149,12 @@ struct DeviceListFactory {
             .filter {
                 return !removedSections.contains($0.section)
         }
-        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, deletedRows: deletedRows, movedRows: devicesWhichMovedSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
+        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, deletedRows: deletedRows, movedRows: devicesWhichMovedBetweenSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
         return (newDeviceList, rowAnimations)
     }
     
     var deviceList: DeviceList {
         let oldDeviceEntries = oldDeviceList.deviceEntries
-        let oldBLEDevices = oldDeviceList.bleDevices
         let newDeviceEntries = oldDeviceEntries
             .filter { !changes.entriesModified.contains($0) }
             .filter { !changes.entriesRemoved.contains($0) }
@@ -167,23 +166,19 @@ struct DeviceListFactory {
             sections.append(.knownDevices(sorted))
         }
         
-        let newBLEDevices = oldBLEDevices
-            .appending(contentsOf: changes.bleDevicesMovedIntoRange)
-            .filter {
-                return !changes.bleDevicesMovedOutOfRange.contains($0)
-            }
+        let newBLEDevices = discoveredDevices
             .filter {
                 return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
         }
         if !newBLEDevices.isEmpty {
-            sections.append(.discoveredDevices(newBLEDevices))
+            sections.append(.discoveredDevices(Array(newBLEDevices)))
         }
         
         return DeviceList(sections: sections, inRangeDevices: discoveredDevices)
     }
     
     func isInRange(_ device: DeviceEntry) -> Bool {
-        return discoveredDevices.contains(device.identifier)
+        return discoveredDevices.contains { $0.identifier == device.identifier }
     }
     
     private func sort(deviceEntries: [DeviceEntry]) -> [DeviceEntry] {
@@ -197,13 +192,13 @@ struct DeviceListFactory {
     }
 }
 
-private func allDiscoveredDevices(oldDeviceList: DeviceList, changes: DeviceBatchChange) -> Set<UUID> {
+private func allDiscoveredDevices(oldDeviceList: DeviceList, changes: DeviceBatchChange) -> Set<BLEDevice> {
     let oldDiscoveredDevices = oldDeviceList.discoveredDevices
-    let addedDeviceIds = changes.bleDevicesMovedIntoRange.map { $0.identifier }
-    let removedDeviceIds = changes.bleDevicesMovedOutOfRange.map { $0.identifier }
+    let addedDevices = changes.bleDevicesMovedIntoRange
+    let removedDevices = changes.bleDevicesMovedOutOfRange
     return oldDiscoveredDevices
-        .union(addedDeviceIds)
-        .subtracting(removedDeviceIds)
+        .union(addedDevices)
+        .subtracting(removedDevices)
 }
 
 extension Array {
