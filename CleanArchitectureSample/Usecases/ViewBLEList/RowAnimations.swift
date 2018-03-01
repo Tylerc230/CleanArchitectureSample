@@ -140,7 +140,6 @@ struct DeviceListFactory {
                 return newDeviceList.indexPath(for: $0.identifier)
             }
             + devicesWhichMovedBetweenSections.map { $0.end }
-        //Need to test for ble devices going out of range (row removed)
         //Need to test for devices entries which aren't in range anymore (row reloaded)
         let deletedRows = changes.entriesRemoved
             .flatMap {

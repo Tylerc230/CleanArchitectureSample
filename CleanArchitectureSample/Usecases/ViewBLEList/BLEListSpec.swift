@@ -23,9 +23,8 @@ class BLEListSpec: QuickSpec {
         
         describe("one ble devices is in range") {
             var tableViewModel: BLEListState.TableViewModel!
-            let unknownUUID = UUID()
+            let device = bleDevice(withUUID: UUID())
             beforeEach {
-                let device = bleDevice(withUUID: unknownUUID)
                 let (tvm, _) = state.updateDevices { changes in
                     changes.bleDevices(movedInRange: [device])
                 }
@@ -51,12 +50,19 @@ class BLEListSpec: QuickSpec {
             }
             
             it("deletes discovered devices section and adds known devices section in its place, after the user adds a corresponding entry") {
-                let newEntry = deviceEntry(withUUID: unknownUUID)
+                let newEntry = deviceEntry(withUUID: device.identifier)
                 let (_, rowAnimations) = state.updateDevices { changes in
                     changes.add(entries: [newEntry])
                 }
                 let movedRow = move(from: (0, 0), to: (0, 0))
                 expect(rowAnimations) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: IndexSet(integer: 0), deletedSections: IndexSet(integer: 0))
+            }
+            
+            it("deletes discovered devices section when the device goes out of range") {
+                let (_, rowAnimations) = state.updateDevices { changes in
+                    changes.bleDevices(movedOutOfRange: [device])
+                }
+                expect(rowAnimations) == RowAnimations(deletedSections: [0])
             }
             
             it("starts the 'create new device entry' flow on tapping a row") {
