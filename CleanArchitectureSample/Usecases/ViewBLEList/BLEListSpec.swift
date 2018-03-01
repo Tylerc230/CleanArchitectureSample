@@ -89,6 +89,14 @@ class BLEListSpec: QuickSpec {
                 }
                 expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)])
             }
+            
+            it("is reloaded when it comes into range") {
+                let bleDevice = BLEDevice(identifier: device.identifier, type: "")
+                let (_, changeSet) = state.updateDevices { changes in
+                    changes.bleDevices(movedInRange: [bleDevice])
+                }
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)])
+            }
         }
         
         describe("two ble devices in range") {

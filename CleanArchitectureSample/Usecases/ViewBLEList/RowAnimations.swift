@@ -135,12 +135,17 @@ struct DeviceListFactory {
                 }
                 return RowAnimations.Move(start: oldIndexPath, end: newIndexPath)
         }
+        let entriesWithChangedInRangeState = (changes.bleDevicesMovedIntoRange + changes.bleDevicesMovedOutOfRange)
+            .map { $0.identifier }
+            .filter { oldDeviceEntries.map { $0.identifier }.contains($0) }
+            .flatMap { oldDeviceList.indexPath(for: $0)}
         let reloadedRows = changes.entriesModified
             .flatMap {
                 return newDeviceList.indexPath(for: $0.identifier)
             }
             + devicesWhichMovedBetweenSections.map { $0.end }
-        //Need to test for devices entries which aren't in range anymore (row reloaded)
+            + entriesWithChangedInRangeState
+        
         let deletedRows = changes.entriesRemoved
             .flatMap {
                 return oldDeviceList.indexPath(for: $0.identifier)
