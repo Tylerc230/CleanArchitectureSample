@@ -16,8 +16,9 @@ struct RowAnimations {
         self.addedSections = addedSections
         self.deletedSections = deletedSections
     }
-    //Deleting and reloading happen first (index paths refer to the original table view model)
+    //Deleting -and reloading- happen first (index paths refer to the original table view model)
     //Inserts take the previous deletes into account
+    //Actually we reload once the animtion is complete
     let reloadedRows: [IndexPath]
     let addedRows: [IndexPath]
     let deletedRows: [IndexPath]
@@ -109,9 +110,13 @@ struct DeviceListFactory {
                 return .init(start: oldIndexPath, end: newIndexPath)
         }
         let persistantDeviceEntries = Set(newDeviceEntries).intersection(oldDeviceEntries)
+        let bleDevicesWhichChangedRangeState = (changes.bleDevicesMovedIntoRange + changes.bleDevicesMovedOutOfRange)
+        let deviceEntriesWhichChangedRangeState =  persistantDeviceEntries.filter {
+            return bleDevicesWhichChangedRangeState.map { $0.identifier }.contains($0.identifier)
+        }
         let oldPositions = oldDeviceEntries.filter(persistantDeviceEntries.contains)
         let newPositions = newDeviceEntries.filter(persistantDeviceEntries.contains)
-        let movedDeviceEntries = changes.entriesModified
+        let movedDeviceEntries = (changes.entriesModified + deviceEntriesWhichChangedRangeState)
             .flatMap { modifiedEntry -> (DeviceEntry, Int, Int)? in
                 guard
                     let oldIndex = oldPositions.index(of: modifiedEntry),
@@ -135,10 +140,10 @@ struct DeviceListFactory {
                 }
                 return RowAnimations.Move(start: oldIndexPath, end: newIndexPath)
         }
-        let entriesWithChangedInRangeState = (changes.bleDevicesMovedIntoRange + changes.bleDevicesMovedOutOfRange)
+        let entriesWithChangedInRangeState = bleDevicesWhichChangedRangeState
             .map { $0.identifier }
             .filter { oldDeviceEntries.map { $0.identifier }.contains($0) }
-            .flatMap { oldDeviceList.indexPath(for: $0)}
+            .flatMap { newDeviceList.indexPath(for: $0)}
         let reloadedRows = changes.entriesModified
             .flatMap {
                 return newDeviceList.indexPath(for: $0.identifier)

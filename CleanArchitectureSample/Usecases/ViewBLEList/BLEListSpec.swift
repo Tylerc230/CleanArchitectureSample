@@ -223,6 +223,24 @@ class BLEListSpec: QuickSpec {
             
         }
         
+        describe("rows moving after in range state change") {
+            let deviceA = DeviceEntry(identifier: UUID(), name: "A", type: "")
+            let deviceB = DeviceEntry(identifier: UUID(), name: "B", type: "")
+            beforeEach {
+                _ = state.updateDevices { changes in
+                    changes.add(entries: [deviceA, deviceB])
+                }
+            }
+            it("moves the in range device above the out of range devices") {
+                let inRangeDevice = BLEDevice(identifier: deviceB.identifier, type: "")
+                let (_, changeSet) = state.updateDevices { changes in
+                    changes.bleDevices(movedInRange: [inRangeDevice])
+                }
+                let movedRow = move(from: (1, 0), to: (0, 0))
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow])
+            }
+        }
+        
         describe("removing rows") {
             let deleted = DeviceEntry(identifier: UUID(), name: "A", type: "")
             let renamed = DeviceEntry(identifier: UUID(), name: "B", type: "")
