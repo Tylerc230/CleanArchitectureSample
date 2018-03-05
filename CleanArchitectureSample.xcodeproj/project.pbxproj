@@ -13,10 +13,10 @@
 		2F1714231FFAB99C0059813F /* UINavigationController+Transitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1714211FFAB99C0059813F /* UINavigationController+Transitions.swift */; };
 		2F21A13A1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */; };
 		2F21A13B1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */; };
-		2F8C904F1FFE9BC000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
-		2F8C90501FFE9BC000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
-		2F8C90511FFE9BC000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
-		2F8C90521FFE9D3000316445 /* RowChangeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */; };
+		2F8C904F1FFE9BC000316445 /* RowAnimations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowAnimations.swift */; };
+		2F8C90501FFE9BC000316445 /* RowAnimations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowAnimations.swift */; };
+		2F8C90511FFE9BC000316445 /* RowAnimations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowAnimations.swift */; };
+		2F8C90521FFE9D3000316445 /* RowAnimations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8C904E1FFE9BC000316445 /* RowAnimations.swift */; };
 		2F90F4882005F7CC00DE5B2A /* CatchException.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F90F4862005F7CB00DE5B2A /* CatchException.m */; };
 		2F90F4892005F7CC00DE5B2A /* CatchException.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F90F4862005F7CB00DE5B2A /* CatchException.m */; };
 		2FA5E7061FD121AF00347B9E /* BLEListSceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */; };
@@ -88,7 +88,7 @@
 		2F0F89AA1FC3E0D000CBDBDE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F1714211FFAB99C0059813F /* UINavigationController+Transitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationController+Transitions.swift"; sourceTree = "<group>"; };
 		2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListFlowCoordinator.swift; sourceTree = "<group>"; };
-		2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowChangeSet.swift; sourceTree = "<group>"; };
+		2F8C904E1FFE9BC000316445 /* RowAnimations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowAnimations.swift; sourceTree = "<group>"; };
 		2F90F4862005F7CB00DE5B2A /* CatchException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CatchException.m; sourceTree = "<group>"; };
 		2F90F4872005F7CC00DE5B2A /* CatchException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchException.h; sourceTree = "<group>"; };
 		2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEListSceneCoordinator.swift; sourceTree = "<group>"; };
@@ -237,7 +237,7 @@
 				2FA5E7051FD121AF00347B9E /* BLEListSceneCoordinator.swift */,
 				2F21A1391FD655C50008D475 /* BLEListFlowCoordinator.swift */,
 				2FCDE1501FF6B91000C97C35 /* DeviceList.swift */,
-				2F8C904E1FFE9BC000316445 /* RowChangeSet.swift */,
+				2F8C904E1FFE9BC000316445 /* RowAnimations.swift */,
 			);
 			path = ViewBLEList;
 			sourceTree = "<group>";
@@ -566,7 +566,7 @@
 				2FCDE1521FF6B91000C97C35 /* DeviceList.swift in Sources */,
 				2FA920691FC52D86007312B7 /* BLEListState.swift in Sources */,
 				2FC081BD1FCE7BA30071ED9C /* iOSTestReplacements.swift in Sources */,
-				2F8C90501FFE9BC000316445 /* RowChangeSet.swift in Sources */,
+				2F8C90501FFE9BC000316445 /* RowAnimations.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,7 +581,7 @@
 				2FA9206A1FC52D86007312B7 /* BLEListState.swift in Sources */,
 				2FEFBE7B1FD676A200C13DB7 /* BLEEditSpec.swift in Sources */,
 				2FC081BE1FCE7BAA0071ED9C /* iOSTestReplacements.swift in Sources */,
-				2F8C90521FFE9D3000316445 /* RowChangeSet.swift in Sources */,
+				2F8C90521FFE9D3000316445 /* RowAnimations.swift in Sources */,
 				2FCDE1541FF6B97600C97C35 /* DeviceList.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -597,7 +597,7 @@
 				2FC081D01FD11A260071ED9C /* DeviceEntry.swift in Sources */,
 				2FB7A2721FD5064300C94ECD /* KnownDeviceCell.swift in Sources */,
 				2F026C4C1FD67364007A6A28 /* BLEEditViewController.swift in Sources */,
-				2F8C90511FFE9BC000316445 /* RowChangeSet.swift in Sources */,
+				2F8C90511FFE9BC000316445 /* RowAnimations.swift in Sources */,
 				2FCDE1531FF6B91000C97C35 /* DeviceList.swift in Sources */,
 				2F1714231FFAB99C0059813F /* UINavigationController+Transitions.swift in Sources */,
 				2F21A13B1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */,
@@ -629,7 +629,7 @@
 				2F026C4B1FD67364007A6A28 /* BLEEditViewController.swift in Sources */,
 				2FEFBE771FD6767E00C13DB7 /* BLEEditState.swift in Sources */,
 				2FB7A27A1FD5124C00C94ECD /* StubBLEDeviceRepository.swift in Sources */,
-				2F8C904F1FFE9BC000316445 /* RowChangeSet.swift in Sources */,
+				2F8C904F1FFE9BC000316445 /* RowAnimations.swift in Sources */,
 				2F21A13A1FD655C50008D475 /* BLEListFlowCoordinator.swift in Sources */,
 				2FFEE95A1FD11AF8008B40B4 /* BLEListViewController.swift in Sources */,
 				2FB7A2741FD5069100C94ECD /* InRangeCell.swift in Sources */,

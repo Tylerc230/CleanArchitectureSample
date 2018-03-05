@@ -2,6 +2,7 @@ import Foundation
 struct BLEDevice {
     let identifier: UUID
     let type: String
+    let discoveredTime = Date()
 }
 
 extension BLEDevice: Equatable {
