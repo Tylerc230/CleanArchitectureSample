@@ -18,8 +18,8 @@ struct BLEListState {
         var changes = DeviceBatchChange()
         changeBlock(&changes)
         let factory = DeviceListFactory(oldDeviceList: deviceList, changes: changes)
-        let (newList, animations) = factory.buildNewDeviceList()
-        deviceList = newList
+        deviceList = factory.newDeviceList
+        let animations = factory.rowAnimations()
         return (tableViewModel, animations)
     }
     

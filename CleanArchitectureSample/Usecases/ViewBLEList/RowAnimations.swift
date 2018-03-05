@@ -64,14 +64,16 @@ struct DeviceBatchChange {
 struct DeviceListFactory {
     let oldDeviceList: DeviceList
     let changes: DeviceBatchChange
+    let newDeviceList: DeviceList
 
     init(oldDeviceList: DeviceList, changes: DeviceBatchChange) {
         self.oldDeviceList = oldDeviceList
         self.changes = changes
+        self.newDeviceList = deviceList(from: oldDeviceList, changes: changes)
     }
     
-    func buildNewDeviceList() -> (DeviceList, RowAnimations){
-        let newDeviceList = deviceList
+    func rowAnimations() -> RowAnimations {
+        let newDeviceList = self.newDeviceList
         let oldDeviceEntries = oldDeviceList.deviceEntries
         let oldBLEDevices = oldDeviceList.bleDevices
         let newDeviceEntries = newDeviceList.deviceEntries
@@ -156,52 +158,51 @@ struct DeviceListFactory {
             .filter {
                 return !removedSections.contains($0.section)
         }
-        let rowAnimations = RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, deletedRows: deletedRows, movedRows: devicesWhichMovedBetweenSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
-        return (newDeviceList, rowAnimations)
+        return RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, deletedRows: deletedRows, movedRows: devicesWhichMovedBetweenSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
     }
     
-    var deviceList: DeviceList {
-        let discoveredDevices = allDiscoveredDevices(oldDeviceList: oldDeviceList, changes: changes)
-        let oldDeviceEntries = oldDeviceList.deviceEntries
-        let newDeviceEntries = oldDeviceEntries
-            .filter { !changes.entriesModified.contains($0) }
-            .filter { !changes.entriesRemoved.contains($0) }
-            .appending(contentsOf: changes.entriesAdded)
-            .appending(contentsOf: changes.entriesModified)
-        var sections: [DeviceList.DeviceSection] = []
-        if !newDeviceEntries.isEmpty {
-            let sorted = sort(deviceEntries: newDeviceEntries, discoveredDevices: discoveredDevices)
-            sections.append(.knownDevices(sorted))
-        }
-        
-        let newBLEDevices = discoveredDevices
-            .filter {
-                return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
-        }
-        if !newBLEDevices.isEmpty {
-            let sorted = newBLEDevices.sorted {
-                return $0.discoveredTime < $1.discoveredTime
-            }
-            sections.append(.discoveredDevices(sorted))
-        }
-        
-        return DeviceList(sections: sections, inRangeDevices: discoveredDevices)
-    }
-    
-    private func sort(deviceEntries: [DeviceEntry], discoveredDevices: Set<BLEDevice>) -> [DeviceEntry] {
-        func isInRange(_ deviceEntry: DeviceEntry) -> Bool {
-            return discoveredDevices.contains{ $0.identifier == deviceEntry.identifier }
-        }
-        let inRangeDevices = deviceEntries
-            .filter(isInRange)
-            .sorted { $0.name < $1.name }
-        let outOfRange = deviceEntries
-            .filter { !isInRange($0) }
-            .sorted { $0.name < $1.name }
-        return inRangeDevices + outOfRange
-    }
 }
 
+private func deviceList(from oldDeviceList: DeviceList, changes: DeviceBatchChange) -> DeviceList {
+    let discoveredDevices = allDiscoveredDevices(oldDeviceList: oldDeviceList, changes: changes)
+    let oldDeviceEntries = oldDeviceList.deviceEntries
+    let newDeviceEntries = oldDeviceEntries
+        .filter { !changes.entriesModified.contains($0) }
+        .filter { !changes.entriesRemoved.contains($0) }
+        .appending(contentsOf: changes.entriesAdded)
+        .appending(contentsOf: changes.entriesModified)
+    var sections: [DeviceList.DeviceSection] = []
+    if !newDeviceEntries.isEmpty {
+        let sorted = sort(deviceEntries: newDeviceEntries, discoveredDevices: discoveredDevices)
+        sections.append(.knownDevices(sorted))
+    }
+    
+    let newBLEDevices = discoveredDevices
+        .filter {
+            return !newDeviceEntries.map { $0.identifier }.contains($0.identifier)
+    }
+    if !newBLEDevices.isEmpty {
+        let sorted = newBLEDevices.sorted {
+            return $0.discoveredTime < $1.discoveredTime
+        }
+        sections.append(.discoveredDevices(sorted))
+    }
+    
+    return DeviceList(sections: sections, inRangeDevices: discoveredDevices)
+}
+
+private func sort(deviceEntries: [DeviceEntry], discoveredDevices: Set<BLEDevice>) -> [DeviceEntry] {
+    func isInRange(_ deviceEntry: DeviceEntry) -> Bool {
+        return discoveredDevices.contains{ $0.identifier == deviceEntry.identifier }
+    }
+    let inRangeDevices = deviceEntries
+        .filter(isInRange)
+        .sorted { $0.name < $1.name }
+    let outOfRange = deviceEntries
+        .filter { !isInRange($0) }
+        .sorted { $0.name < $1.name }
+    return inRangeDevices + outOfRange
+}
 private func allDiscoveredDevices(oldDeviceList: DeviceList, changes: DeviceBatchChange) -> Set<BLEDevice> {
     let oldDiscoveredDevices = oldDeviceList.discoveredDevices
     let addedDevices = changes.bleDevicesMovedIntoRange
