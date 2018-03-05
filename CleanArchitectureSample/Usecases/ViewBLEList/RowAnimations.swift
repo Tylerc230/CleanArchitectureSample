@@ -72,33 +72,49 @@ struct DeviceListFactory {
         self.newDeviceList = deviceList(from: oldDeviceList, changes: changes)
     }
     
-    func rowAnimations() -> RowAnimations {
-        let newDeviceList = self.newDeviceList
-        let oldDeviceEntries = oldDeviceList.deviceEntries
+    var bleDeviceRangeStateChanges: [BLEDevice] {
+        return (changes.bleDevicesMovedOutOfRange + changes.bleDevicesMovedIntoRange)
+    }
+    
+    func insertedSections() -> IndexSet {
         let oldBLEDevices = oldDeviceList.bleDevices
-        let newDeviceEntries = newDeviceList.deviceEntries
         let newBLEDevices = newDeviceList.bleDevices
-        
-        //Calculate animations
+        let oldDeviceEntries = oldDeviceList.deviceEntries
+        let newDeviceEntries = newDeviceList.deviceEntries
         var insertedSections: IndexSet = []
-        var removedSections: IndexSet = []
         if !newDeviceEntries.isEmpty && oldDeviceEntries.isEmpty, let addedIndex = newDeviceList.index(for: .knownDevices([])) {
             insertedSections.insert(addedIndex)
-        }
-        if newDeviceEntries.isEmpty && !oldDeviceEntries.isEmpty, let removedIndex = oldDeviceList.index(for: .knownDevices([])) {
-            removedSections.insert(removedIndex)
         }
         if !newBLEDevices.isEmpty && oldBLEDevices.isEmpty, let discoveredIndex = newDeviceList.index(for: .discoveredDevices([])) {
             insertedSections.insert(discoveredIndex)
         }
+        return insertedSections
+    }
+    
+    func removedSections() -> IndexSet {
+        let oldBLEDevices = oldDeviceList.bleDevices
+        let newBLEDevices = newDeviceList.bleDevices
+        let oldDeviceEntries = oldDeviceList.deviceEntries
+        let newDeviceEntries = newDeviceList.deviceEntries
+        var removedSections: IndexSet = []
+        if newDeviceEntries.isEmpty && !oldDeviceEntries.isEmpty, let removedIndex = oldDeviceList.index(for: .knownDevices([])) {
+            removedSections.insert(removedIndex)
+        }
         if newBLEDevices.isEmpty && !oldBLEDevices.isEmpty, let removedIndex = oldDeviceList.index(for: .discoveredDevices([])) {
             removedSections.insert(removedIndex)
         }
+        return removedSections
+    }
+    
+    func insertedRows() -> [IndexPath] {
         let allNewDevicesIdentifiers = newDeviceList.allDeviceIdentifiers
         let allOldDeviceIdentifiers = oldDeviceList.allDeviceIdentifiers
         let addedDeviceIdentifiers = allNewDevicesIdentifiers.subtracting(allOldDeviceIdentifiers)
-        let insertedRows = addedDeviceIdentifiers.flatMap { newDeviceList.indexPath(for: $0) }
-        let devicesWhichMovedBetweenSections: [RowAnimations.Move] = (changes.entriesRemoved + changes.entriesAdded)
+        return addedDeviceIdentifiers.flatMap { newDeviceList.indexPath(for: $0) }
+    }
+    
+    func rowsMovedBetweenSections() -> [RowAnimations.Move] {
+        return (changes.entriesRemoved + changes.entriesAdded)
             .filter(newDeviceList.isInRange)
             .flatMap { deviceEntry in
                 guard
@@ -109,14 +125,19 @@ struct DeviceListFactory {
                 }
                 return .init(start: oldIndexPath, end: newIndexPath)
         }
+    }
+    
+    func rowsMovedInSection() -> [RowAnimations.Move] {
+        let oldDeviceEntries = oldDeviceList.deviceEntries
+        let newDeviceEntries = newDeviceList.deviceEntries
+        
         let persistantDeviceEntries = Set(newDeviceEntries).intersection(oldDeviceEntries)
-        let bleDevicesWhichChangedRangeState = (changes.bleDevicesMovedIntoRange + changes.bleDevicesMovedOutOfRange)
         let deviceEntriesWhichChangedRangeState =  persistantDeviceEntries.filter {
-            return bleDevicesWhichChangedRangeState.map { $0.identifier }.contains($0.identifier)
+            return bleDeviceRangeStateChanges.map { $0.identifier }.contains($0.identifier)
         }
         let oldPositions = oldDeviceEntries.filter(persistantDeviceEntries.contains)
         let newPositions = newDeviceEntries.filter(persistantDeviceEntries.contains)
-        let movedDeviceEntries = (changes.entriesModified + deviceEntriesWhichChangedRangeState)
+        return (changes.entriesModified + deviceEntriesWhichChangedRangeState)
             .flatMap { modifiedEntry -> (DeviceEntry, Int, Int)? in
                 guard
                     let oldIndex = oldPositions.index(of: modifiedEntry),
@@ -140,25 +161,45 @@ struct DeviceListFactory {
                 }
                 return RowAnimations.Move(start: oldIndexPath, end: newIndexPath)
         }
-        let entriesWithChangedInRangeState = bleDevicesWhichChangedRangeState
+    }
+    
+    func deviceEntriesWithRangeStateChanges() -> [IndexPath] {
+        let oldDeviceEntries = oldDeviceList.deviceEntries
+        return bleDeviceRangeStateChanges
             .map { $0.identifier }
             .filter { oldDeviceEntries.map { $0.identifier }.contains($0) }
             .flatMap { newDeviceList.indexPath(for: $0)}
-        let reloadedRows = changes.entriesModified
+    }
+    
+    func reloadedRows() -> [IndexPath] {
+        let entriesWithChangedInRangeState = deviceEntriesWithRangeStateChanges()
+        return changes.entriesModified
             .flatMap {
                 return newDeviceList.indexPath(for: $0.identifier)
             }
-            + devicesWhichMovedBetweenSections.map { $0.end }
             + entriesWithChangedInRangeState
-        
-        let deletedRows = changes.entriesRemoved
-            .flatMap {
-                return oldDeviceList.indexPath(for: $0.identifier)
-            }
+    }
+    
+    func rowAnimations() -> RowAnimations {
+        let insertedSections = self.insertedSections()
+        let removedSections = self.removedSections()
+        let insertedRows = self.insertedRows()
+        let movedDeviceEntries = self.rowsMovedInSection()
+        let devicesWhichMovedBetweenSections = rowsMovedBetweenSections()
+        let reloadedRows = self.reloadedRows()
+            + devicesWhichMovedBetweenSections.map { $0.end }
+        let deletedRows = self.deletedRows()
             .filter {
                 return !removedSections.contains($0.section)
         }
         return RowAnimations(reloadedRows: reloadedRows, addedRows: insertedRows, deletedRows: deletedRows, movedRows: devicesWhichMovedBetweenSections + movedDeviceEntries, addedSections: insertedSections, deletedSections: removedSections)
+    }
+    
+    func deletedRows() -> [IndexPath] {
+        return changes.entriesRemoved
+            .flatMap {
+                return oldDeviceList.indexPath(for: $0.identifier)
+        }
     }
     
 }
