@@ -64,12 +64,10 @@ struct DeviceBatchChange {
 struct DeviceListFactory {
     let oldDeviceList: DeviceList
     let changes: DeviceBatchChange
-    private let discoveredDevices: Set<BLEDevice>
-    
+
     init(oldDeviceList: DeviceList, changes: DeviceBatchChange) {
         self.oldDeviceList = oldDeviceList
         self.changes = changes
-        self.discoveredDevices = allDiscoveredDevices(oldDeviceList: oldDeviceList, changes: changes)
     }
     
     func buildNewDeviceList() -> (DeviceList, RowAnimations){
@@ -99,7 +97,7 @@ struct DeviceListFactory {
         let addedDeviceIdentifiers = allNewDevicesIdentifiers.subtracting(allOldDeviceIdentifiers)
         let insertedRows = addedDeviceIdentifiers.flatMap { newDeviceList.indexPath(for: $0) }
         let devicesWhichMovedBetweenSections: [RowAnimations.Move] = (changes.entriesRemoved + changes.entriesAdded)
-            .filter(isInRange)
+            .filter(newDeviceList.isInRange)
             .flatMap { deviceEntry in
                 guard
                     let newIndexPath = newDeviceList.indexPath(for: deviceEntry.identifier),
@@ -163,6 +161,7 @@ struct DeviceListFactory {
     }
     
     var deviceList: DeviceList {
+        let discoveredDevices = allDiscoveredDevices(oldDeviceList: oldDeviceList, changes: changes)
         let oldDeviceEntries = oldDeviceList.deviceEntries
         let newDeviceEntries = oldDeviceEntries
             .filter { !changes.entriesModified.contains($0) }
@@ -171,7 +170,7 @@ struct DeviceListFactory {
             .appending(contentsOf: changes.entriesModified)
         var sections: [DeviceList.DeviceSection] = []
         if !newDeviceEntries.isEmpty {
-            let sorted = sort(deviceEntries: newDeviceEntries)
+            let sorted = sort(deviceEntries: newDeviceEntries, discoveredDevices: discoveredDevices)
             sections.append(.knownDevices(sorted))
         }
         
@@ -189,16 +188,15 @@ struct DeviceListFactory {
         return DeviceList(sections: sections, inRangeDevices: discoveredDevices)
     }
     
-    func isInRange(_ device: DeviceEntry) -> Bool {
-        return discoveredDevices.contains { $0.identifier == device.identifier }
-    }
-    
-    private func sort(deviceEntries: [DeviceEntry]) -> [DeviceEntry] {
+    private func sort(deviceEntries: [DeviceEntry], discoveredDevices: Set<BLEDevice>) -> [DeviceEntry] {
+        func isInRange(_ deviceEntry: DeviceEntry) -> Bool {
+            return discoveredDevices.contains{ $0.identifier == deviceEntry.identifier }
+        }
         let inRangeDevices = deviceEntries
-            .filter(self.isInRange)
+            .filter(isInRange)
             .sorted { $0.name < $1.name }
         let outOfRange = deviceEntries
-            .filter { !self.isInRange($0) }
+            .filter { !isInRange($0) }
             .sorted { $0.name < $1.name }
         return inRangeDevices + outOfRange
     }
