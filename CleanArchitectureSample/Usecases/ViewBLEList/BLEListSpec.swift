@@ -100,22 +100,28 @@ class BLEListSpec: QuickSpec {
         }
         
         describe("two ble devices in range") {
-            let unknownUUID = UUID()
+            let unknownDevice = bleDevice(withUUID: UUID())
             beforeEach {
-                let device1 = bleDevice(withUUID: unknownUUID)
                 let device2 = bleDevice()
                 _ = state.updateDevices { changes in
-                    changes.bleDevices(movedInRange: [device1, device2])
+                    changes.bleDevices(movedInRange: [unknownDevice, device2])
                 }
             }
             
             it("adds a new section, removes a row and adds a row when one of the devices is added to the db") {
-                let entry = deviceEntry(withUUID: unknownUUID)
+                let entry = deviceEntry(withUUID: unknownDevice.identifier)
                 let (_, changeSet) = state.updateDevices { changes in
                     changes.add(entries: [entry])
                 }
                 let movedRow = move(from: (0, 0), to: (0, 0))
                 expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: [0])
+            }
+            
+            it("removes a row when a device goes out of range") {
+                let (_, changeSet) = state.updateDevices { changes in
+                    changes.bleDevices(movedOutOfRange: [unknownDevice])
+                }
+                expect(changeSet) == RowAnimations(deletedRows: [IndexPath(row: 0, section: 0)])
             }
         }
         

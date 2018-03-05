@@ -196,9 +196,11 @@ struct DeviceListFactory {
     }
     
     func deletedRows() -> [IndexPath] {
-        return changes.entriesRemoved
+        let entriesRemoved = changes.entriesRemoved.map { $0.identifier }
+        let devicesOutOfRange = changes.bleDevicesMovedOutOfRange.map { $0.identifier }
+        return (entriesRemoved + devicesOutOfRange)
             .flatMap {
-                return oldDeviceList.indexPath(for: $0.identifier)
+                return oldDeviceList.indexPath(for: $0)
         }
     }
     
