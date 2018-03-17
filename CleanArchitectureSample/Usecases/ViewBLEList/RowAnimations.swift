@@ -196,7 +196,9 @@ struct DeviceListFactory {
     }
     
     func deletedRows() -> [IndexPath] {
-        let entriesRemoved = changes.entriesRemoved.map { $0.identifier }
+        let entriesRemoved = changes.entriesRemoved
+            .filter { !oldDeviceList.isInRange($0) }
+            .map { $0.identifier }
         let devicesOutOfRange = changes.bleDevicesMovedOutOfRange.map { $0.identifier }
         return (entriesRemoved + devicesOutOfRange)
             .flatMap {
