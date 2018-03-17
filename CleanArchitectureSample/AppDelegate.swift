@@ -15,12 +15,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let rootFlowCoordinator: BLEListFlowCoordinator
     override init() {
         let deviceManager = StubBLEDeviceManager()
-        let devices = ["1", "A", "B"].map { DeviceEntry(identifier: UUID(), name: $0, type: "Type")}
+        let devices = ["1", "A", "B"]
+            .map { DeviceEntry(identifier: UUID(), name: $0, type: "Type")}
         let deviceRepo = InMemoryBLEDeviceRepository(devices: devices)
         rootFlowCoordinator = BLEListFlowCoordinator(deviceManager: deviceManager, deviceRepository: deviceRepo)
         super.init()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-//            creating a section and moving a row into the section animation looks bad (doesn't happen)
+            //Moving last ble device to known section has broken animation
             deviceManager.discover(device: BLEDevice(identifier: devices.first!.identifier, type: "Type"))
             deviceManager.discover(device: BLEDevice(identifier: UUID(), type: "Type"))
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {

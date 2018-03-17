@@ -43,28 +43,30 @@ class BLEListSceneCoordinator {
     }
     
     func didCreate(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.updateDevices { state in
-            state.append(deviceEntries: [device])
+        let (tableViewModel, rowAnimations) = state.updateDevices { changes in
+            changes.add(entries: [device])
         }
-        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: rowAnimations)
     }
     
     func didUpdate(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.updateDevices { state in
-            state.update(deviceEntries: [device])
+        let (tableViewModel, rowAnimations) = state.updateDevices { changes in
+            changes.modify(entries: [device])
         }
-        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: rowAnimations)
     }
     
     func didRemove(device: DeviceEntry) {
-        let (tableViewModel, changeSet) = state.updateDevices { state in
-            state.remove(deviceEntries: [device])
+        let (tableViewModel, rowAnimations) = state.updateDevices { changes in
+            changes.remove(entries: [device])
         }
-        ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
+        ui?.update(tableViewModel: tableViewModel, animateChangeSet: rowAnimations)
     }
     
     private func setInitialState() {
-        _ = state.append(deviceEntries: deviceRepository.fetchAllDevices())
+        state.updateDevices { changes in
+            changes.add(entries: deviceRepository.fetchAllDevices())
+        }
     }
     
     private weak var ui: BLEListUI?
@@ -76,7 +78,7 @@ class BLEListSceneCoordinator {
 extension BLEListSceneCoordinator: BLEDeviceManagerObserver {
     func didDiscover(device: BLEDevice) {
         let (tableViewModel, changeSet) = state.updateDevices { state in
-            state.append(bleDevices: [device])
+            state.bleDevices(movedInRange: [device])
         }
         ui?.update(tableViewModel: tableViewModel, animateChangeSet: changeSet)
     }

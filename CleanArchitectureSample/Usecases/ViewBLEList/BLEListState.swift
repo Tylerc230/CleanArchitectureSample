@@ -14,6 +14,7 @@ struct BLEListState {
         }
     }
     
+    @discardableResult
     mutating func updateDevices(with changeBlock: (inout DeviceBatchChange) -> ()) -> (TableViewModel, RowAnimations) {
         var changes = DeviceBatchChange()
         changeBlock(&changes)
