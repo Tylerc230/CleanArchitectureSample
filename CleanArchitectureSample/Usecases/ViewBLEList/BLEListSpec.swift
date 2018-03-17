@@ -46,18 +46,20 @@ class BLEListSpec: QuickSpec {
                     changes.bleDevices(movedInRange: [device])
                 }
                 expect(tableViewModel.numRows(inSection: 0)) == 2
-                expect(changeSet.addedRows) == [IndexPath(row: 1, section: 0)]
+                expect(changeSet) == RowAnimations(addedRows:[IndexPath(row: 1, section: 0)])
             }
             
-            it("deletes discovered devices section and adds known devices section in its place, after the user adds a corresponding entry") {
-                let newEntry = deviceEntry(withUUID: device.identifier)
-                let (_, rowAnimations) = state.updateDevices { changes in
-                    changes.add(entries: [newEntry])
+            describe("user adds a device entry making the discovered device known") {
+                it("deletes discovered devices section and adds known devices section in its place") {
+                    let newEntry = deviceEntry(withUUID: device.identifier)
+                    let (_, rowAnimations) = state.updateDevices { changes in
+                        changes.add(entries: [newEntry])
+                    }
+                    let movedRow = move(from: (0, 0), to: (0, 0))
+                    expect(rowAnimations) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: IndexSet(integer: 0), deletedSections: IndexSet(integer: 0))
                 }
-                let movedRow = move(from: (0, 0), to: (0, 0))
-                expect(rowAnimations) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow], addedSections: IndexSet(integer: 0), deletedSections: IndexSet(integer: 0))
             }
-            
+
             it("deletes discovered devices section when the device goes out of range") {
                 let (_, rowAnimations) = state.updateDevices { changes in
                     changes.bleDevices(movedOutOfRange: [device])
@@ -77,10 +79,17 @@ class BLEListSpec: QuickSpec {
         
         describe("one known device") {
             let device = DeviceEntry(identifier: UUID(), name: "A", type: "")
+            var tableViewModel: BLEListState.TableViewModel!
             beforeEach {
-                _ = state.updateDevices { changes in
+                let (tvm, _) = state.updateDevices { changes in
                     changes.add(entries: [device])
                 }
+                tableViewModel = tvm
+            }
+            
+            it("is not marked as in range") {
+                let config = tableViewModel.cellConfig(at: IndexPath(row: 0, section: 0))
+                expect(config) == BLEListState.TableViewModel.CellConfig.known(device.name, device.type, false)
             }
             it("is reloaded when the name changes even though it doesn't move") {
                 let device = DeviceEntry(identifier: device.identifier, name: "B", type: "")
@@ -90,13 +99,25 @@ class BLEListSpec: QuickSpec {
                 expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)])
             }
             
-            it("is reloaded when it comes into range") {
+            it("is marked as in range and reloaded when it comes into range") {
                 let bleDevice = BLEDevice(identifier: device.identifier, type: "")
-                let (_, changeSet) = state.updateDevices { changes in
+                let (tvm, changeSet) = state.updateDevices { changes in
                     changes.bleDevices(movedInRange: [bleDevice])
                 }
                 expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)])
+                let cellConfig = tvm.cellConfig(at: IndexPath(row: 0, section: 0))
+                expect(cellConfig) == BLEListState.TableViewModel.CellConfig.known(device.name, device.type, true)
             }
+            
+            it("transitions to update device entry when section 0 row tapped") {
+                let transition = state.didSelectRow(at: IndexPath(row:0, section: 0))
+                if case BLEListState.Transition.updateDeviceEntry = transition {
+                    
+                } else {
+                    fail("Should transition to updating an existing device entry when selecting a known device entry row")
+                }
+            }
+            
         }
         
         describe("two ble devices in range") {
@@ -108,7 +129,16 @@ class BLEListSpec: QuickSpec {
                 }
             }
             
-            it("adds a new section, removes a row and adds a row when one of the devices is added to the db") {
+            it("adds another cell to the bottom when another unknown BLEDevice comes into range") {
+                let newDevice = bleDevice()
+                let (_, changeSet) = state.updateDevices { changes in
+                    changes.bleDevices(movedInRange: [newDevice])
+                }
+                expect(changeSet) == RowAnimations(addedRows: [IndexPath(row: 2, section: 0)])
+            }
+            
+            
+            it("adds a new section, removes a row and adds a row when a corresponding device entry is added") {
                 let entry = deviceEntry(withUUID: unknownDevice.identifier)
                 let (_, changeSet) = state.updateDevices { changes in
                     changes.add(entries: [entry])
@@ -125,84 +155,36 @@ class BLEListSpec: QuickSpec {
             }
         }
         
-        describe("three ble devices in range, two devices known, one in range device is known") {
-            let knownNotInRangeUUID = UUID()
-            let unknownInRangeUUID = UUID()
-            var tableViewModel: BLEListState.TableViewModel!
+        describe("rows moving between sections") {
+            let bleDevice1 = bleDevice()//no device entry
+            let bleDevice2 = bleDevice()//no device entry
+            let deviceEntry1 = deviceEntry()//Out of range
             beforeEach {
-                //Originally has 2 unknown devices in the bottom section and 2 devices in the top (one is in range and one is not)
-                let knownInRangeUUID = UUID()
-                let knownNotInRangeDeviceEntry = deviceEntry(withUUID: knownNotInRangeUUID)//row:0, sec:0 disabled
-                let knownInRangeDeviceEntry = deviceEntry(withUUID: knownInRangeUUID)//row: 1, sec: 0 and will be enabled b/c it is in range
                 _ = state.updateDevices { changes in
-                    changes.add(entries: [knownNotInRangeDeviceEntry, knownInRangeDeviceEntry])
+                    changes.bleDevices(movedInRange: [bleDevice1, bleDevice2])
+                    changes.add(entries: [deviceEntry1])
                 }
-
-                let knownDevice = bleDevice(withUUID: knownInRangeUUID)//This one will be in section 0 (bc it is known)
-                let unknownDevice1 = bleDevice(withUUID: unknownInRangeUUID)//This one will be at row: 0, sec: 1
-                let unknownDevice2 = bleDevice()//This one will be at row: 1, sec: 1
-                let (tvm, _) = state.updateDevices { changes in
-                    changes.bleDevices(movedInRange: [knownDevice, unknownDevice1, unknownDevice2])
-                }
-                tableViewModel = tvm
-            }
-            
-            it("has 2 sections") {
-                expect(tableViewModel.numSections) == 2
-            }
-            
-            it("has 2 rows in section 0") {
-                expect(tableViewModel.numRows(inSection: 0)) == 2
-            }
-            
-            it("has 2 rows in section 1") {
-                expect(tableViewModel.numRows(inSection: 1)) == 2
-            }
-            
-            it("has 1 disabled row and 1 enabled row in section 0") {
-                var enabledRowCount = 0
-                var disabledRowCount = 0
-                (0..<tableViewModel.numRows(inSection: 0))
-                    .map {
-                        return tableViewModel.cellConfig(at: IndexPath(row: $0, section: 0))
-                    }
-                    .forEach { config in
-                        if case let .known(_, _, enabled) = config {
-                            if enabled {
-                                enabledRowCount += 1
-                            } else {
-                                disabledRowCount += 1
-                            }
-                        }
-                }
-                expect(enabledRowCount) == 1
-                expect(disabledRowCount) == 1
-            }
-            
-            it("transitions to update device entry when section 0 row tapped") {
-                let transition = state.didSelectRow(at: IndexPath(row:0, section: 0))
-                if case BLEListState.Transition.updateDeviceEntry = transition {
-                    
-                } else {
-                    fail("Should transition to updating an existing device entry when selecting a known device entry row")
-                }
-            }
-            
-            it("adds another cell to the bottom when another unknown BLEDevice comes into range") {
-                let newDevice = bleDevice()
-                let (_, changeSet) = state.updateDevices { changes in
-                    changes.bleDevices(movedInRange: [newDevice])
-                }
-                expect(changeSet.addedRows) == [IndexPath(row: 2, section: 1)]
             }
             
             it("removes a cell from section 1 and adds a cell section 0 when the user adds a device entry to an unknown device, making it known") {
-                let newDeviceEntry = deviceEntry(withUUID: unknownInRangeUUID)
+                let newDeviceEntry = deviceEntry(withUUID: bleDevice1.identifier)
                 let (_, changeSet) = state.updateDevices { changes in
                     changes.add(entries: [newDeviceEntry])
                 }
-                let movedRow = move(from: (0, 1), to: (1, 0))
-                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 1, section: 0)], movedRows: [movedRow])
+                let movedRow = move(from: (0, 1), to: (0, 0))
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [movedRow])
+            }
+            
+            it("moves a row from device entries to ble devices when the corresponding entry is deleted") {
+                let inRangeEntry = deviceEntry(withUUID: bleDevice1.identifier)
+                _ = state.updateDevices { changes in
+                    changes.add(entries: [inRangeEntry])
+                }
+                let (_, changeSet) = state.updateDevices { changes in
+                    changes.remove(entries: [inRangeEntry])
+                }
+                let move = RowAnimations.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 0, section:1))
+                expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 1)], movedRows: [move])
             }
             
         }
@@ -229,7 +211,7 @@ class BLEListSpec: QuickSpec {
             
         }
         
-        describe("rows moving after in range state change") {
+        describe("resorting in the device entries section after range state") {
             let deviceA = DeviceEntry(identifier: UUID(), name: "A", type: "")
             let deviceB = DeviceEntry(identifier: UUID(), name: "B", type: "")
             beforeEach {
@@ -309,12 +291,11 @@ class BLEListSpec: QuickSpec {
                     }
                 }
                 
-                it("adds insertes a section at the top with one row when user adds a device entry") {
+                it("inserts a section at the top with one row when user adds a device entry") {
                     let (_, changeSet) = state.updateDevices { changes in
                         changes.add(entries: [deviceEntry()])
                     }
-                    expect(changeSet.addedSections) == [0]
-                    expect(changeSet.addedRows) == [IndexPath(row:0, section: 0)]
+                    expect(changeSet) == RowAnimations(addedRows: [IndexPath(row:0, section: 0)], addedSections: [0])
                 }
                 
                 it("removes a section when single ble device is deleted") {
@@ -324,17 +305,6 @@ class BLEListSpec: QuickSpec {
                     expect(changeSet) == RowAnimations(deletedSections: [0])
                 }
                 
-                it("moves a row from device entries to ble devices when the corresponding entry is deleted") {
-                    let entry = DeviceEntry(identifier: singleBLEDevice.identifier, name: "New entry", type: "")
-                    _ = state.updateDevices { changes in
-                        changes.add(entries: [entry])
-                    }
-                    let (_, changeSet) = state.updateDevices { changes in
-                        changes.remove(entries: [entry])
-                    }
-                    let move = RowAnimations.Move(start: IndexPath(row: 0, section: 0), end: IndexPath(row: 0, section:0))
-                    expect(changeSet) == RowAnimations(reloadedRows: [IndexPath(row: 0, section: 0)], movedRows: [move], addedSections: [0], deletedSections: [0])
-                }
             }
         }
         
@@ -396,6 +366,20 @@ extension RowAnimations: Equatable {
         lhs.movedRows == rhs.movedRows &&
         lhs.addedSections == rhs.addedSections &&
         lhs.deletedSections == rhs.deletedSections
+    }
+}
+
+typealias CellConfig = BLEListState.TableViewModel.CellConfig
+extension BLEListState.TableViewModel.CellConfig: Equatable {
+    static func ==(lhs: CellConfig, rhs: CellConfig) -> Bool {
+        switch (lhs, rhs) {
+        case let (.known(lName, lType, lInRange), .known(rName, rType, rInRange)):
+            return lName == rName && lType == rType && lInRange == rInRange
+        case let (.discovered(lType), .discovered(rType)):
+            return lType == rType
+        default:
+            return false
+        }
     }
 }
 
